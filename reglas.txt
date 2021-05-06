@@ -1,0 +1,19 @@
+COBOL-SOURCE-PROGRAM ::= ['ENVIROMENT' 'DIVISION' '.' 
+ENVIROMENT-DIVISION-CONTENT]['DATA' 'DIVISION' '.' 
+DATA-DIVISION-CONTENT]
+
+ENVIROMENT ::= [CONFIGURATION-SECTION][INPUT-OUTPUT-SECTION]
+
+CONFIGURATION-SECTION ::= 'CONFIGURATION' 'SECTION' '.'
+ CONFIGURATION-SECTION-PARAGRAPHS
+
+
+ //terminales:
+// 'ENVIROMENT'?, 'DIVISION', '.', 'DATA'
+// 'SECTION' 'CONFIGURATION' 
+
+//no terminales
+//cobol-source-program, enviroment
+//configuration-section, input-output-section,
+//configuration-section-paragraphs
+//enviroment-division-content
