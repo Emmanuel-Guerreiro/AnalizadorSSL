@@ -2,18 +2,62 @@ COBOL-SOURCE-PROGRAM ::= ['ENVIROMENT' 'DIVISION' '.'
 ENVIROMENT-DIVISION-CONTENT]['DATA' 'DIVISION' '.' 
 DATA-DIVISION-CONTENT]
 
-ENVIROMENT ::= [CONFIGURATION-SECTION][INPUT-OUTPUT-SECTION]
+ENVIROMENT-DIVISION-CONTENT ::= [CONFIGURATION-SECTION][INPUT-OUTPUT-SECTION]
 
 CONFIGURATION-SECTION ::= 'CONFIGURATION' 'SECTION' '.'
- CONFIGURATION-SECTION-PARAGRAPHS
+CONFIGURATION-SECTION-PARAGRAPHS
 
 
- //terminales:
-// 'ENVIROMENT'?, 'DIVISION', '.', 'DATA'
-// 'SECTION' 'CONFIGURATION' 
+/*Reglas agregadas por mi para poder completar mejor el analisis*/
+INPUT-OUTPUT-SECTION ::= ['FILE' 'CONTROL' '.' file-control-entry]
+
+CONFIGURATION-SECTION-PARAGRAPHS ::= ['SOURCE' 'COMPUTER' '.' source-computer-entry]
+['OBJECT' 'COMPUTER' '.' object-computer-entry]
+
+DATA-DIVISION-CONTENT ::= ['FILE' 'SECTION' '.' file-description-entry]//VER SI LO HAGO MAS COMPLEJO
+
+//terminales:
+// 'ENVIROMENT', 'DIVISION', '.', 'DATA'
+// 'SECTION' 'CONFIGURATION', 'FILE', 'CONTROL'
 
 //no terminales
 //cobol-source-program, enviroment
 //configuration-section, input-output-section,
 //configuration-section-paragraphs
 //enviroment-division-content
+
+//Cuales tokenizo a partir de cadenas arbitrarias:
+//(Para que sea mas completo el analisis)
+//source-computer-entry => {palabra} = ID_COMPUTER //Ver como hago una mejor regex para el id
+//object-computer-entry =>  {palabra} = ID_COMPUTER //Ver como hago una mejor regex para el id
+/*Para este seguro tenga que generar otra regex que arme onda un ID_FILE
+// file-control-entry => {palabra} = ID_FILE //Ver como hago una mejor regex para el id
+//file-description-entry => {} = ID_FILE //igual que arriba
+
+
+//Reglas ya completas en su estructuracion:
+* CONFIGURATION-SECTION-PARAGRAPHS
+* CONFIGURATION-SECTION
+* INPUT-OUTPUT-SECTION
+* ENVIROMENT-DIVISION-CONTENT
+* DATA-DIVISION-CONTENT 
+* COBOL-SOURCE-PROGRAM
+
+
+
+//Documentacion en la que base todo:
+https://www.microfocus.com/documentation/object-cobol/oc41books/lrcpro.htm
+https://www.ibm.com/docs/en/i/7.4?topic=object-designing-your-ile-cobol-source-program
+
+
+/*
+Posibles lugares de conflicto en FLEX:
+La regex de cadenap (el punto principalmente)*/
+
+
+
+cadenap ({palabras}\.{palabras})
+
+/*Relaciono a una cadena de la forma [] con el ID_COMPUTER
+                            a traves del union en el archivo de Bison*/
+                            /*Relaciono texto de la forma "[].[]" con el ID_FILE*/
