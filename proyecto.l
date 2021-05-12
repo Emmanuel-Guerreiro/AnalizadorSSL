@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "proyecto.tab.c" //Esto es para unirlo a Bison
+#include "proyecto.tab.h" //Esto es para unirlo a Bison
 
 /*Hay una variable por cada token, CUando aparece una 
 palabra, que devuelve un token, tambien aumenta en uno la 
@@ -37,7 +37,7 @@ cadenap ({cadena}[0-9])
 "DATA" {ntok++; ndata++; return DATA;}
 "SECTION" {ntok++; nsec++; return SECTION;}
 "CONFIGURATION" {ntok++; nconf++; return CONFIGURATION;}
-"FILE" {ntok++; nfile++; return FILE;}
+"FILE" {ntok++; nfile++; return FILEM;}
 "CONTROL" {ntok++; nctrl++; return CTRL;}
 "SOURCE" {ntok++; nsrce; return SOURCE;}
 "COMPUTER" {ntok++; ncomp++; return COMPUTER;}
@@ -60,12 +60,12 @@ cadenap ({cadena}[0-9])
         if( nconf > 0) printf("CONFIGURATION: Asociado al lexema CONFIGURATION | configuration => %d \n",nconf );
         if( nsec > 0) printf(" SECTION: Asociado al lexema SECTION | section=> %d \n", nsec );
 
-    }else if(ntok = 0){
+    }else {
         printf("\n Se ha ingresado la cadena vacia. Esta es valida. Aunque trivial \n");
     };
 
 
-    printf("Soy la salida");
+    printf("Soy la salida \n");
     exit(0);
 }
 

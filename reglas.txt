@@ -61,3 +61,24 @@ cadenap ({palabras}\.{palabras})
 /*Relaciono a una cadena de la forma [] con el ID_COMPUTER
                             a traves del union en el archivo de Bison*/
                             /*Relaciono texto de la forma "[].[]" con el ID_FILE*/
+
+
+
+//BOrre reglas por errores:
+
+cobol-source-program: | ENVIROMENT DIVISION DOT enviroment-division-content DATA DIVISION DOT data-division-content  
+
+enviroment-diovision-content| configuration-section input-output-section 
+
+
+//Estos que incluyen error los borro para ver si son causa de no compilar
+data-division-content: | error SECTION DOT FILEDESC {printf("\n--> Error lexico en linea %d, Se esperaban <<>>, luego de primer expression\n",++nlines);} 
+                     | FILEM  error DOT FILEDESC {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);} 
+                     | FILEM  SECTION error FILEDESC {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);} 
+                     | FILEM  SECTION DOT error {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);} 
+
+
+input-output-section: | error CONTROL DOT ID_FILE {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
+                    | FILEM  error DOT ID_FILE {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
+                    | FILEM  CONTROL error ID_FILE {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
+                    | FILEM  CONTROL DOT error {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}

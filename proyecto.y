@@ -2,6 +2,9 @@
 #include <stdio.h>    
 extern FILE  *yyin;
 
+int yylex (void);
+int yyerror(char *msg);
+
 /*
 Por convencion de BISON
 Los TERMINALES se encuentran en MAYUSCULA
@@ -43,45 +46,34 @@ int i = 0, nlines = 0;
 cobol-source-program: {/*En el caso de vacio. Pasa como valido*/}
                     | ENVIROMENT DIVISION DOT enviroment-division-content  
                     | DATA DIVISION DOT data-division-content  
-                    | ENVIROMENT DIVISION DOT enviroment-division-content DATA DIVISION DOT data-division-content  
+                    
 ;
 enviroment-division-content: configuration-section  
           | input-output-section  
-          | configuration-section input-output-section  
+           
 ;
 configuration-section: CONFIGURATION SECTION DOT configuration-section-paragraphs  
 ;
 data-division-content:  
                      | FILEM  SECTION DOT FILEDESC {/*Este ultimo es provisional*/}
-                     | error SECTION DOT FILEDESC {printf("\n--> Error lexico en linea %d, Se esperaban <<>>, luego de primer expression\n",++nlines);} 
-                     | FILEM  error DOT FILEDESC {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);} 
-                     | FILEM  SECTION error FILEDESC {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);} 
-                     | FILEM  SECTION DOT error {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);} 
+                     
 ;
 input-output-section:  
                     | FILEM  CONTROL DOT ID_FILE {printf("Ta todo gucci");}
-                    | error CONTROL DOT ID_FILE {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
-                    | FILEM  error DOT ID_FILE {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
-                    | FILEM  CONTROL error ID_FILE {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
-                    | FILEM  CONTROL DOT error {printf("\n--> Error lexico en linea %d, Se esperaban <<>> luego de primer expression\n",++nlines);}
+                    
 ;
 configuration-section-paragraphs: DATA DOT DATA {/*Ver si considero mas renglones de configuracion*/}
                                 
 %%
 int yyerror(char *msg){
 
-    printf("\n Error detectado\n %s", msg);
+    printf("\n Error detectado %s \n", msg);
 }
 
 int main(int argc, char **argv){
     
-    if (argc > 1)
-    {
-         yyin = fopen(argv[1], "rt");
-    }else
-    { 
-        yyin = stdin;
-    
+    if (argc > 1) yyin = fopen(argv[1], "rt");
+    else yyin = stdin;
     
     yyparse();
     

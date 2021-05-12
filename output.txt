@@ -1,0 +1,2 @@
+PRUEBA CON ERROR
+ Error detectado syntax error 
