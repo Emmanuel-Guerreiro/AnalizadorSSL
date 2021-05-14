@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "proyecto.tab.h" //Esto es para unirlo a Bison
 
+void showTable();
+
 /*Hay una variable por cada token, CUando aparece una 
 palabra, que devuelve un token, tambien aumenta en uno la 
 cantidad de su variable correspondiente*/
@@ -17,10 +19,10 @@ digitos {digito}+
 letras [a-z]
 palabras {letras}+
 cadena {palabras}+
-cadenap ({cadena}[0-9])
+cadenap ({palabras}{digitos})
 %%
 
-{cadena} {ntok++; nidcomp++;
+{palabras} {ntok++; nidcomp++;
           yylval.letras=yytext;
           return ID_COMPUTER; 
           }
@@ -29,7 +31,7 @@ cadenap ({cadena}[0-9])
             yylval.fileeId=yytext;
             return ID_FILE; 
            }
-
+"\t" {return TAB;}
 "\n" {return NL;}
 "." {ntok++; ndot++; return DOT;}
 "ENVIROMENT" {ntok++; nenv++; return ENVIROMENT;}
@@ -42,33 +44,42 @@ cadenap ({cadena}[0-9])
 "SOURCE" {ntok++; nsrce; return SOURCE;}
 "COMPUTER" {ntok++; ncomp++; return COMPUTER;}
 "OBJECT" {ntok++; nobj++; return OBJECT;}
-"file-description-entry" {ntok++; return FILEDESC;}
-"TERMINAR"  {
-     int i=0;
+"DESCRIPTION" {ntok++; return DESCRIPTION;}
+"FD" {ntok++; return FD;}
+"WORKING-STORAGE-SECTION" {ntok++; return WORKSTGSEC;}
+
+"TERMINAR" {
+    int i=0;
     printf("\n");
     for (i=0;i<=70;i++) printf("-");printf("\n");
     for (i=0;i<=70;i++) printf("-");printf("\n");
-    printf( "TABLA DE TOKENS:\n\n");
+    printf( "====================TABLA DE TOKENS====================\n\n");
     if(ntok > 0){
         printf("\n Tokens reconocidos: %d \n", ntok);
         printf("\n Lista de tokens y sus cantidades: \n");
 
-        if( ndot > 0) printf("DOT: Asociado al lexema punto ( . ) => %d \n", ndot);
-        if( nenv > 0) printf("ENVIROMENT: Asociado al lexema ENVIROMENT | enviroment => %d \n ", nenv);
-        if( ndiv > 0) printf("DIVISION: Asociado al lexema DIVISION | division => %d \n", ndiv);
-        if( ndata > 0) printf("DATA: Asociado al lexema DATA | data => %d \n", ndata );
-        if( nconf > 0) printf("CONFIGURATION: Asociado al lexema CONFIGURATION | configuration => %d \n",nconf );
-        if( nsec > 0) printf(" SECTION: Asociado al lexema SECTION | section=> %d \n", nsec );
-
+        if( ndot > 0)  printf("DOT --->  Asociado al lexema punto ( . ) => %d \n", ndot);
+        if( nenv > 0)  printf("ENVIROMENT ---> Asociado al lexema ENVIROMENT ....... %d \n ", nenv);
+        if( ndiv > 0)  printf("DIVISION ---> Asociado al lexema DIVISION ....... %d \n", ndiv);
+        if( ndata > 0) printf("DATA ---> Asociado al lexema DATA ....... %d \n", ndata );
+        if( nconf > 0) printf("CONFIGURATION ---> Asociado al lexema CONFIGURATION ....... %d \n",nconf );
+        if( nsec > 0)  printf("SECTION ---> Asociado al lexema SECTION ....... %d \n", nsec );
+        if( nsrce > 0) printf("SOURCE --->Asociado al lexema SOURCE .......%d \n", nsrce);
     }else {
-        printf("\n Se ha ingresado la cadena vacia. Esta es valida. Aunque trivial \n");
+        printf("\n *** Se ha ingresado la cadena vacia. Esta es valida. Aunque trivial *** \n");
     };
 
 
-    printf("Soy la salida \n");
+    printf("------------ Hemos llegado al final del analisis. Saliendo ------------\n");
     exit(0);
 }
 
-[\t];
+
 
 %%
+
+void showTable(){
+    
+}
+
+

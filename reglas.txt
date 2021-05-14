@@ -14,7 +14,14 @@ INPUT-OUTPUT-SECTION ::= ['FILE' 'CONTROL' '.' file-control-entry]
 CONFIGURATION-SECTION-PARAGRAPHS ::= ['SOURCE' 'COMPUTER' '.' source-computer-entry]
 ['OBJECT' 'COMPUTER' '.' object-computer-entry]
 
-DATA-DIVISION-CONTENT ::= ['FILE' 'SECTION' '.' file-description-entry]//VER SI LO HAGO MAS COMPLEJO
+SOURCE-COMPUTER-ENTRY ::= ID_COMPUTER DOT
+OBJECT COMPUTER ENTRY ::= ID_COMPUTER DOT
+
+DATA-DIVISION-CONTENT ::= ['FILE' 'SECTION' '.' FILE-DESCRIPTION-ENTRY]//VER SI LO HAGO MAS COMPLEJO
+
+FILE-DESCRIPTION-ENTRY ::= 'FILE' 'SECTION' '.' 'NL' 'FD' 'ID_FILE' NL '01' record-name
+NL WORKING-STORAGE-SECTION /*No se si lo voy a hacer tan completo*/
+
 
 //terminales:
 // 'ENVIROMENT', 'DIVISION', '.', 'DATA'
@@ -31,8 +38,6 @@ DATA-DIVISION-CONTENT ::= ['FILE' 'SECTION' '.' file-description-entry]//VER SI 
 //source-computer-entry => {palabra} = ID_COMPUTER //Ver como hago una mejor regex para el id
 //object-computer-entry =>  {palabra} = ID_COMPUTER //Ver como hago una mejor regex para el id
 /*Para este seguro tenga que generar otra regex que arme onda un ID_FILE
-// file-control-entry => {palabra} = ID_FILE //Ver como hago una mejor regex para el id
-//file-description-entry => {} = ID_FILE //igual que arriba
 
 
 //Reglas ya completas en su estructuracion:
@@ -42,6 +47,7 @@ DATA-DIVISION-CONTENT ::= ['FILE' 'SECTION' '.' file-description-entry]//VER SI 
 * ENVIROMENT-DIVISION-CONTENT
 * DATA-DIVISION-CONTENT 
 * COBOL-SOURCE-PROGRAM
+* OBJECT COMPUTER ENTRY
 
 
 

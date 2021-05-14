@@ -58,15 +58,18 @@ extern int yydebug;
     CONFIGURATION = 264,
     SECTION = 265,
     DOT = 266,
-    DIVISION = 267,
-    ENVIROMENT = 268,
-    DATA = 269,
-    CONTROL = 270,
-    FCTRL = 271,
-    FCENT = 272,
-    FILEM = 273,
-    CTRL = 274,
-    FILEDESC = 275
+    TAB = 267,
+    DIVISION = 268,
+    ENVIROMENT = 269,
+    DATA = 270,
+    CONTROL = 271,
+    FCTRL = 272,
+    FCENT = 273,
+    FILEM = 274,
+    CTRL = 275,
+    DESCRIPTION = 276,
+    FD = 277,
+    WORKSTGSEC = 278
   };
 #endif
 
@@ -74,13 +77,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 32 "proyecto.y"
+#line 17 "proyecto.y"
 
     int digitos;
     char *letras;
     char *fileeId;
 
-#line 84 "proyecto.tab.h"
+#line 87 "proyecto.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

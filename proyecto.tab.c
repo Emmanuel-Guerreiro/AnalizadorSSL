@@ -69,35 +69,20 @@
 #line 1 "proyecto.y"
 
 #include <stdio.h>    
+#include <string.h>
 extern FILE  *yyin;
 
 int yylex (void);
 int yyerror(char *msg);
 
-/*
-Por convencion de BISON
-Los TERMINALES se encuentran en MAYUSCULA
-Los *no-terminales* se encuentran en *minuscula*
-*/
-
-/*
-Las reglas de COBOL estan simplificadas. En casos como data-division-content o
-configuration-section-paragraphs solo se contemplan ciertos casos posibles,
-para simplificar el analisis sintactico (contemplando menor numero de errores y 
-tokens posibles)
-*/
+void prueba();
 
 
-/*Explicacion tokens: 
-DOT => '.' ; CSP => CONFIGURATION-SECTION-PARAGRAPHS; */
-/*
-FCTRL, FCENT son tokens que surgen a partir de la estructura del codigo COBOL
-*/
+int Dibujar=0, Recursion=0,MaxRecursion;
+char *Lexema[100], *Token[100];
+int SubIndice=0, SubIndiceMax, NumLineas=1, EstadoScanner=0;
 
-int i = 0, nlines = 0;
-
-
-#line 101 "proyecto.tab.c"
+#line 86 "proyecto.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -154,15 +139,18 @@ extern int yydebug;
     CONFIGURATION = 264,
     SECTION = 265,
     DOT = 266,
-    DIVISION = 267,
-    ENVIROMENT = 268,
-    DATA = 269,
-    CONTROL = 270,
-    FCTRL = 271,
-    FCENT = 272,
-    FILEM = 273,
-    CTRL = 274,
-    FILEDESC = 275
+    TAB = 267,
+    DIVISION = 268,
+    ENVIROMENT = 269,
+    DATA = 270,
+    CONTROL = 271,
+    FCTRL = 272,
+    FCENT = 273,
+    FILEM = 274,
+    CTRL = 275,
+    DESCRIPTION = 276,
+    FD = 277,
+    WORKSTGSEC = 278
   };
 #endif
 
@@ -170,13 +158,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 32 "proyecto.y"
+#line 17 "proyecto.y"
 
     int digitos;
     char *letras;
     char *fileeId;
 
-#line 180 "proyecto.tab.c"
+#line 168 "proyecto.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -493,21 +481,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  6
+#define YYFINAL  7
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   21
+#define YYLAST   59
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  21
+#define YYNTOKENS  24
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  7
+#define YYNNTS  10
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  12
+#define YYNRULES  22
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  28
+#define YYNSTATES  60
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   275
+#define YYMAXUTOK   278
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -546,15 +534,16 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20
+      15,    16,    17,    18,    19,    20,    21,    22,    23
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    46,    46,    47,    48,    51,    52,    55,    57,    58,
-      61,    62,    65
+       0,    32,    32,    32,    34,    35,    36,    39,    40,    41,
+      42,    44,    45,    47,    48,    51,    52,    54,    57,    60,
+      61,    62,    63
 };
 #endif
 
@@ -564,11 +553,12 @@ static const yytype_int8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "ID_COMPUTER", "ID_FILE", "NL", "SOURCE",
-  "COMPUTER", "OBJECT", "CONFIGURATION", "SECTION", "DOT", "DIVISION",
-  "ENVIROMENT", "DATA", "CONTROL", "FCTRL", "FCENT", "FILEM", "CTRL",
-  "FILEDESC", "$accept", "cobol-source-program",
-  "enviroment-division-content", "configuration-section",
-  "data-division-content", "input-output-section",
+  "COMPUTER", "OBJECT", "CONFIGURATION", "SECTION", "DOT", "TAB",
+  "DIVISION", "ENVIROMENT", "DATA", "CONTROL", "FCTRL", "FCENT", "FILEM",
+  "CTRL", "DESCRIPTION", "FD", "WORKSTGSEC", "$accept", "mi_axioma",
+  "cobol-source-program", "enviroment-division-content",
+  "configuration-section", "data-division-content",
+  "file-description-entry", "input-output-section", "file-control-entry",
   "configuration-section-paragraphs", YY_NULLPTR
 };
 #endif
@@ -580,16 +570,16 @@ static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275
+     275,   276,   277,   278
 };
 # endif
 
-#define YYPACT_NINF (-13)
+#define YYPACT_NINF (-11)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-1)
+#define YYTABLE_NINF (-20)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -598,9 +588,12 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -12,    -8,    -7,     3,    -5,    -4,   -13,    -9,   -10,     0,
-      -3,   -13,   -13,   -13,     1,   -13,     2,     4,     5,     6,
-      10,    -2,     8,   -13,   -13,   -13,     7,   -13
+      -4,   -10,    -8,     2,   -11,     1,     9,   -11,   -11,    16,
+      17,     4,    -1,   -11,    -3,     8,   -11,     6,   -11,   -11,
+      18,   -11,    15,    19,   -11,    20,    22,    25,    13,     0,
+      23,   -11,    26,   -11,   -11,    28,    30,   -11,    29,    27,
+      31,    32,   -11,    34,    37,    38,    24,    33,    36,    41,
+      43,   -11,    35,    42,   -11,    44,    45,    46,    48,   -11
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -608,21 +601,24 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     0,     0,     0,     0,     1,    10,     8,     0,
-       0,     3,     5,     6,     0,     4,     0,     0,     0,     0,
-       0,     0,     0,     7,    11,     9,     0,    12
+       4,     0,     0,     0,     2,     0,     0,     1,     3,     0,
+       0,     0,     0,     7,     0,     0,     5,     8,     9,    13,
+       0,     6,     0,     0,    10,     0,     0,     0,    15,     0,
+       0,    17,     0,    14,    12,     0,     0,    11,     0,     0,
+       0,     0,    18,     0,     0,     0,     0,     0,     0,     0,
+      20,    21,     0,     0,    16,     0,     0,     0,     0,    22
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -13,   -13,   -13,   -13,   -13,   -13,   -13
+     -11,   -11,    49,   -11,   -11,   -11,   -11,    40,   -11,   -11
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,    11,    12,    15,    13,    23
+      -1,     3,     4,    16,    17,    21,    33,    18,    31,    37
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -630,39 +626,50 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       9,     1,     2,     6,     4,     5,     7,     8,    14,    10,
-      16,    18,    17,    19,    24,    20,    21,     0,    25,    26,
-      22,    27
+     -19,    34,     7,     5,    19,     6,    35,    22,    36,    13,
+       1,     2,     9,    14,   -19,   -19,     1,     2,    20,   -19,
+      10,    11,    12,    15,    23,    15,    26,    29,    25,    30,
+      27,    28,    32,    42,    38,    40,    39,    41,    43,    46,
+      47,    48,    44,    45,    50,    52,    49,    51,    53,    58,
+      55,    56,     8,     0,     0,     0,    57,    24,    54,    59
 };
 
 static const yytype_int8 yycheck[] =
 {
-       9,    13,    14,     0,    12,    12,    11,    11,    18,    18,
-      10,    10,    15,    11,     4,    11,    11,    -1,    20,    11,
-      14,    14
+       0,     1,     0,    13,     5,    13,     6,    10,     8,     5,
+      14,    15,    11,     9,    14,    15,    14,    15,    19,    19,
+      11,     5,     5,    19,    16,    19,    11,     5,    10,     4,
+      11,    11,    19,     4,    11,     7,    10,     7,    11,     5,
+       3,     3,    11,    11,    11,     4,    22,    11,     5,     3,
+       8,     7,     3,    -1,    -1,    -1,    11,    17,    23,    11
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    13,    14,    22,    12,    12,     0,    11,    11,     9,
-      18,    23,    24,    26,    18,    25,    10,    15,    10,    11,
-      11,    11,    14,    27,     4,    20,    11,    14
+       0,    14,    15,    25,    26,    13,    13,     0,    26,    11,
+      11,     5,     5,     5,     9,    19,    27,    28,    31,     5,
+      19,    29,    10,    16,    31,    10,    11,    11,    11,     5,
+       4,    32,    19,    30,     1,     6,     8,    33,    11,    10,
+       7,     7,     4,    11,    11,    11,     5,     3,     3,    22,
+      11,    11,     4,     5,    23,     8,     7,    11,     3,    11
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    21,    22,    22,    22,    23,    23,    24,    25,    25,
-      26,    26,    27
+       0,    24,    25,    25,    26,    26,    26,    27,    27,    27,
+      27,    28,    28,    29,    29,    30,    30,    31,    32,    33,
+      33,    33,    33
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     4,     4,     1,     1,     4,     0,     4,
-       0,     4,     3
+       0,     2,     1,     2,     0,     5,     5,     1,     1,     1,
+       2,     5,     5,     1,     4,     0,     7,     4,     3,     0,
+       5,     5,    11
 };
 
 
@@ -1357,32 +1364,32 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2:
-#line 46 "proyecto.y"
-                      {/*En el caso de vacio. Pasa como valido*/}
-#line 1364 "proyecto.tab.c"
+  case 5:
+#line 35 "proyecto.y"
+                                                                              {/*DibujarTodo(1);*/}
+#line 1371 "proyecto.tab.c"
     break;
 
-  case 9:
-#line 58 "proyecto.y"
-                                                   {/*Este ultimo es provisional*/}
-#line 1370 "proyecto.tab.c"
+  case 6:
+#line 36 "proyecto.y"
+                                                                 {DibujarTodo(2);}
+#line 1377 "proyecto.tab.c"
     break;
 
-  case 11:
-#line 62 "proyecto.y"
-                                                 {printf("Ta todo gucci");}
-#line 1376 "proyecto.tab.c"
+  case 13:
+#line 47 "proyecto.y"
+                          {/*Esto me permite obviar el dar el contenido de data division*/}
+#line 1383 "proyecto.tab.c"
     break;
 
-  case 12:
-#line 65 "proyecto.y"
-                                                {/*Ver si considero mas renglones de configuracion*/}
-#line 1382 "proyecto.tab.c"
+  case 15:
+#line 51 "proyecto.y"
+                        {/*Esta vacio por prueba*/}
+#line 1389 "proyecto.tab.c"
     break;
 
 
-#line 1386 "proyecto.tab.c"
+#line 1393 "proyecto.tab.c"
 
       default: break;
     }
@@ -1614,20 +1621,273 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 67 "proyecto.y"
+#line 66 "proyecto.y"
+
+
+void prueba(){ 
+    printf("Esta todo en orden \n");
+}
 
 int yyerror(char *msg){
-
-    printf("\n Error detectado %s \n", msg);
+    
+    char *messageP;
+    if(msg == "Syntax error"){
+        printf("\n ASDASD \n");
+    }
+    
+    printf("\n Error encontrado!"); 
+    printf("\n Error tipo: %s \n", msg);
+    // yyparse();
 }
 
 int main(int argc, char **argv){
     
     if (argc > 1) yyin = fopen(argv[1], "rt");
-    else yyin = stdin;
+    else {
+        yyin = stdin;
+        printf("\n Para respetar correctamente el formato de input de COBOL. Lea el documento LEER.txt \n");
+        printf("Si no se respecta correctamente, va a fallar, sin importar que tan correcta sea la estructura.\n");
+        printf("\n\n.............................................\n\n");
+        }
+
     
     yyparse();
     
     return 0;
 }
-int yywrap() {return 1;}
+int yywrap() {
+	EstadoScanner=2;
+	printf("El analisis ha concluido\n");
+	return 1;
+}
+
+int DibujarTodo(int SubParam){
+	// DibujarTablaDeTokens();
+	DibujarArbolDeDerivacion(SubParam);
+	return 0;
+}
+
+int DibujarArbolDeDerivacion(int SubTipo){
+	int ContAuxT,ContAuxK;
+	int LargoPalabra;
+
+/* la pantalla tiene un maximo de 1-79 caracteres */
+	printf("-----------------------------ARBOL DE DERIVACIONES-----------------------------\n\n");
+	printf("                          discriminant_specification\n");
+	printf("                                       |\n");
+
+	switch (SubTipo){
+		case 1:
+			printf("                              ---------+--------------\n");
+			printf("                              |              |       |\n");
+			printf("                   defining_identifier_list \":\" subtype_mark\n");
+			printf("                              |                      |\n");
+			if (SubIndiceMax==3){
+				EscribirCentrado(31,"def_id",54,Token[2],0);
+				printf("                              |                      |\n");
+				EscribirCentrado(31,Token[0],54,Lexema[2],0);
+				printf("                              |\n");
+				EscribirCentrado(31,Lexema[0],0);}
+			else{
+				printf("              ----------------+-----           IDENTIFICADOR\n");
+				printf("              |              |     |                 |\n");
+				printf("   defining_identifier_list \",\" def_id");
+				EscribirCentrado(16,Lexema[SubIndiceMax-1],0);
+				printf("              |                    |\n");
+				printf("              |              IDENTIFICADOR\n");
+				printf("              |                    |\n");
+				EscribirCentrado(15,"|",36,Lexema[SubIndiceMax-3],0);
+				printf("              |\n");
+				printf("              -----------------\n");
+				printf("                              |\n");
+				for (ContAuxK=(SubIndiceMax-5);ContAuxK>=0;ContAuxK-=2){
+					if (ContAuxK==0){
+						EscribirCentrado(31,"def_id",0);
+						printf("                              |\n");
+						EscribirCentrado(31,Token[0],0);
+						printf("                              |\n");
+						EscribirCentrado(31,Lexema[0],0);}
+					else{
+						printf("              ----------------+-----\n");
+						printf("              |              |     |\n");
+						printf("   defining_identifier_list \",\" def_id\n");
+						printf("              |                    |\n");
+						printf("              |              IDENTIFICADOR\n");
+						printf("              |                    |\n");
+						EscribirCentrado(15,"|",36,Lexema[ContAuxK],0);
+						printf("              |\n");
+						printf("              -----------------\n");
+						printf("                              |\n");}
+				}
+			}
+			break;
+		case 2:
+			printf("                  ---------------------+------------------------\n");
+			printf("                  |              |       |        |            |\n");
+			printf("       defining_identifier_list \":\" subtype_mark \":=\" default_expression\n");
+			printf("                  |                      |                     |\n");
+			if (SubIndiceMax==5){
+				EscribirCentrado(19,"def_id",42,Token[2],64,Token[4]);
+				printf("                  |                      |                     |\n");
+				EscribirCentrado(19,Token[0],42,Lexema[2],64,Lexema[4]);
+				printf("                  |\n");
+				EscribirCentrado(19,Lexema[0],0);}
+			else{
+				printf("           -------+--------------  IDENTIFICADOR");
+				EscribirCentrado(16,Token[SubIndiceMax-1],0);
+				printf("           |              |     |        |                     |\n");
+				printf("defining_identifier_list \",\" def_id");
+				EscribirCentrado(7,Lexema[SubIndiceMax-3],29,Lexema[SubIndiceMax-1],0);
+				printf("           |                    |\n");
+				printf("           |              IDENTIFICADOR\n");
+				printf("           |                    |\n");
+				EscribirCentrado(12,"|",33,Lexema[SubIndiceMax-5]);
+				printf("           --------\n");
+				printf("                  |\n");
+				for (ContAuxK=(SubIndiceMax-7);ContAuxK>=0;ContAuxK-=2){
+					if (ContAuxK==0){
+						EscribirCentrado(19,"def_id",0);
+						printf("                  |\n");
+						EscribirCentrado(19,Token[0],0);
+						printf("                  |\n");
+						EscribirCentrado(19,Lexema[0],0);}
+					else{
+						printf("           -------+--------------\n");
+						printf("           |              |     |\n");
+						printf("defining_identifier_list \",\" def_id\n");
+						printf("           |                    |\n");
+						printf("           |              IDENTIFICADOR\n");
+						printf("           |                    |\n");
+						EscribirCentrado(12,"|",33,Lexema[ContAuxK]);
+						printf("           -------\n");
+						printf("                 |\n");}
+					}
+				}
+			break;
+		case 3:
+			printf("                           ------------+--------------\n");
+			printf("                           |              |          |\n");
+			printf("                defining_identifier_list \":\" access_definition\n");
+			printf("                           |                         |\n");
+			if (SubIndiceMax==3){
+				EscribirCentrado(28,"def_id",54,Token[2],0);
+				printf("                           |                         |\n");
+				EscribirCentrado(28,Token[0],54,Lexema[2],0);
+				printf("                           |\n");
+				EscribirCentrado(28,Lexema[0],0);}
+			else{
+				printf("                 ----------+-----------          EXPRESION\n");
+				printf("                 |              |     |              |\n");
+				printf("      defining_identifier_list \",\" def_id");
+				EscribirCentrado(13,Lexema[SubIndiceMax-1],0);
+				printf("                 |                    |\n");
+				printf("                 |              IDENTIFICADOR\n");
+				printf("                 |                    |\n");
+				EscribirCentrado(18,"|",39,Lexema[SubIndiceMax-3],0);
+				printf("                 -----------\n");
+				printf("                           |\n");
+				for (ContAuxK=(SubIndiceMax-5);ContAuxK>=0;ContAuxK-=2){
+					if (ContAuxK==0){
+						EscribirCentrado(28,"def_id",0);
+						printf("                           |\n");
+						EscribirCentrado(28,Token[0],0);
+						printf("                           |\n");
+						EscribirCentrado(28,Lexema[0],0);}
+					else{
+						printf("                 ----------+-----------\n");
+						printf("                 |              |     |\n");
+						printf("      defining_identifier_list \",\" def_id\n");
+						printf("                 |                    |\n");
+						printf("                 |              IDENTIFICADOR\n");
+						printf("                 |                    |\n");
+						EscribirCentrado(18,"|",39,Lexema[ContAuxK],0);
+						printf("                 -----------\n");
+						printf("                           |\n");}
+				}
+			}
+			break;
+		case 4:
+			printf("               ------------------------+--------------------------\n");
+			printf("               |              |          |          |            |\n");
+			printf("    defining_identifier_list \":\" access_definition \":=\" default_expressionn\n");
+			printf("               |                         |                       |\n");
+			if (SubIndiceMax==5){
+				EscribirCentrado(16,"def_id",42,Token[2],66,Token[4]);
+				printf("               |                         |                       |\n");
+				EscribirCentrado(16,Token[0],42,Lexema[2],66,Lexema[4]);
+				printf("               |\n");
+				EscribirCentrado(16,Lexema[0],0);}
+			else{
+				printf("           ----+-----------------    EXPRESION");
+				EscribirCentrado(20,Token[SubIndiceMax-1],0);
+				printf("           |              |     |        |                       |\n");
+				printf("defining_identifier_list \",\" def_id");
+				EscribirCentrado(7,Lexema[SubIndiceMax-3],31,Lexema[SubIndiceMax-1],0);
+				printf("           |                    |\n");
+				printf("           |              IDENTIFICADOR\n");
+				printf("           |                    |\n");
+				EscribirCentrado(12,"|",33,Lexema[SubIndiceMax-5]);
+				printf("           -----\n");
+				printf("               |\n");
+				for (ContAuxK=(SubIndiceMax-7);ContAuxK>=0;ContAuxK-=2){
+					if (ContAuxK==0){
+						EscribirCentrado(16,"def_id",0);
+						printf("               |\n");
+						EscribirCentrado(16,Token[0],0);
+						printf("               |\n");
+						EscribirCentrado(16,Lexema[0],0);}
+					else{
+						printf("           ----+-----------------\n");
+						printf("           |              |     |\n");
+						printf("defining_identifier_list \",\" def_id\n");
+						printf("           |                    |\n");
+						printf("           |              IDENTIFICADOR\n");
+						printf("           |                    |\n");
+						EscribirCentrado(12,"|",33,Lexema[ContAuxK]);
+						printf("           -----\n");
+						printf("               |\n");}
+					}
+				}
+			break;
+	}
+	return 0;
+}
+
+int EscribirCentrado(int CenUno, char* CadUno, int CenDos, char* CadDos, int CenTres, char* CadTres){
+	int Longitud, MaxLineas, MaxEspacios, K;
+
+	Longitud=strlen(CadUno);
+	MaxEspacios=CenUno-(Longitud/2)-1;
+	for (K=0;K<MaxEspacios;K++){
+		printf(" ");
+	}
+	printf("%s",CadUno);
+
+	if (CenDos==0){
+		printf("\n");
+		return 0;}
+
+	MaxLineas=MaxEspacios+Longitud;
+
+	Longitud=strlen(CadDos);
+	MaxEspacios=CenDos-(Longitud/2)-MaxLineas-1;
+	for (K=0;K<MaxEspacios;K++){
+		printf(" ");
+	}
+	printf("%s",CadDos);
+
+	if (CenTres==0){
+		printf("\n");
+		return 0;}
+
+	MaxLineas+=MaxEspacios+Longitud;
+
+	Longitud=strlen(CadTres);
+	MaxEspacios=CenTres-(Longitud/2)-MaxLineas-1;
+	for (K=0;K<MaxEspacios;K++){
+		printf(" ");
+	}
+	printf("%s\n",CadTres);
+
+	return 0;
+}

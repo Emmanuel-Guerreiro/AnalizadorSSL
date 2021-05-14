@@ -1,2 +1,10 @@
-PRUEBA CON ERROR
- Error detectado syntax error 
+
+ El analizador esta pensado para manejar inputs con indentacion de 1 salto de linea, y generando nuevas lineas dentro de la misma regla. 
+Para mas informacion leer el archivo LEER.txt 
+ Esta todo perfecto      
+ Llegue a configuration-section-paragraphs 
+
+ Llegue a configuration-section 
+
+ Llegue a enviroment-division-content 
+Esta todo en orden 
