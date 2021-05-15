@@ -68,8 +68,7 @@ extern int yydebug;
     FILEM = 274,
     CTRL = 275,
     DESCRIPTION = 276,
-    FD = 277,
-    WORKSTGSEC = 278
+    FD = 277
   };
 #endif
 
@@ -77,13 +76,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 17 "proyecto.y"
+#line 28 "proyecto.y"
 
     int digitos;
     char *letras;
     char *fileeId;
 
-#line 87 "proyecto.tab.h"
+#line 86 "proyecto.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

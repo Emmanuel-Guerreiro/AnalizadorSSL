@@ -1,0 +1,21 @@
+Este es un analizador para una simplificacion de codigo COBOL.
+
+Documentacion de COBOL util:
+https://www.ibm.com/docs/en/i/7.4?topic=object-designing-your-ile-cobol-source-program
+
+https://www.microfocus.com/documentation/object-cobol/oc41books/lrcpro.htm
+
+
+Consideraciones a tomar en cuenta:
+-Recomiendo seguir la guia de ejemplo de estructura junto a las reglas, 
+para probar ejemplos propios
+
+-Ser atento a la indentacion, esa no es esperada en una primera linea
+(como puede ser ENVIROMENT DIVISION. o DATA DIVISION.) 
+En los casos donde se puede identar, es con 1 espacio. NO tabular.
+Usar mas de un espacio donde no corresponde, dara errores, sintacticos
+
+-Para el caso de ID_COMPUTER se espera un string alfanumerico sin espacios
+-Para el caso de ID_FILE Se espera un string alfanumerico, sin espacio, 
+que puede empezar o terminar con _
+

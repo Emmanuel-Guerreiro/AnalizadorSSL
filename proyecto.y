@@ -6,12 +6,23 @@ extern FILE  *yyin;
 int yylex (void);
 int yyerror(char *msg);
 
-void prueba();
+void showLine(int line);
+void printOnError(char *err);
+void dibujoArbol(int caso);
+
+char *arbol[30];
+int i = 0, ntries = 0; //ntries cuenta que ejemplo de entrada es.
+int nlines = 0; //Este cuenta las lineas dentro de un ejemplo, para dar un mejor error
+/*Las siguientes constantes sirven para saber que mostrar en el arbol*/
+int confSecParag=0; //Sirve para saber si mostrar el conf-sec-paragraphs en el arbol de derivacion
+char *envDivCont;
 
 
-int Dibujar=0, Recursion=0,MaxRecursion;
-char *Lexema[100], *Token[100];
-int SubIndice=0, SubIndiceMax, NumLineas=1, EstadoScanner=0;
+
+short int estado=1, acepToken=1;
+int nline = 0;
+short int proneToShow = 1; /*Permite que no salte muchas veces un mensaje en errores reiterados
+(como si fuera el yyerror que solo se llama una vez)*/
 %}
 
 %union{
@@ -25,70 +36,137 @@ int SubIndice=0, SubIndiceMax, NumLineas=1, EstadoScanner=0;
 %token CONFIGURATION SECTION DOT TAB
 %token DIVISION ENVIROMENT DATA CONTROL
 %token FCTRL FCENT FILEM CTRL
-%token DESCRIPTION FD WORKSTGSEC
+%token DESCRIPTION FD 
 %start mi_axioma
 %%
 
+
+
 mi_axioma: cobol-source-program | mi_axioma cobol-source-program
 ;
-cobol-source-program: 
-                    | ENVIROMENT DIVISION DOT NL enviroment-division-content  {/*DibujarTodo(1);*/}                 
-                    | DATA DIVISION DOT NL data-division-content {DibujarTodo(2);}
+cobol-source-program: NL {/*Si lo borro pierdo la posibilidad de agregar mas*/}
+                    | ENVIROMENT DIVISION DOT NL enviroment-division-content {if(estado == 1 && acepToken == 1){
+                                                                                //Esto corre al final, por lo tanto lo pone al ultimo
+                                                                                arbol[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content";
+                                                                                
+                                                                                printf("\n\n________________________\nDERIVACION EJEMPLO: %d   ESTADO: LINEA ACEPTADA\n",++ntries);
+                                                                                /*Decrementa, porque esto se corre al final*/
+                                                                                for(i; i>=0; i--){
+                                                                                    printf("%s", arbol[i]);
+                                                                                }
+                                                                                printf("\n\n________________________\n Nuevo itento: \n");
+                                                                                estado = 1;
+                                                                                acepToken = 1;
+                                                                                /*Limpio los array para el proximo ejemplo*/
+                                                                                for (i=0;i<30;i++){
+                                                                                  arbol[i]="";
+                                                                                }
+                                                                                //Reseteo para el proximo ejemplo.
+                                                                                nlines = 0;
+                                                                                dibujoArbol(1);
+                                                                            }
+                                                                           }
+                    | DATA DIVISION DOT NL data-division-content {/*DibujarTodo(2); Esta es correcta*/ /*Aca tal vez tambien me sirve el proneToShow = 1*/}
+                    | error DIVISION DOT NL enviroment-division-content {printOnError("Se esperaba 'ENVIROMENT' al iniciar la frase\n "); /*Si contemplo asi el error, no se para*/}
+                    | ENVIROMENT error DOT NL enviroment-division-content {printOnError("Se esperaba 'DIVISION' en segundo lugar\n ");}
+                    | ENVIROMENT DIVISION error NL {printOnError("Al definir el titular de env division content. Se esperaba un punto ( . ) en tercer lugar\n ");}
+                    | ENVIROMENT error DOT error {printOnError("Se esperaba un salto de linea para entrar poder contemplar el input de enviroment-division-content\n ");}
+                    | error DIVISION DOT NL data-division-content {printOnError("Se esperaba 'DATA' al iniciar la oracion \n");}
+                    | DATA error DOT NL data-division-content {printOnError("Se esperaba DIVISION en segundo lugar \n");}
+                    | DATA DIVISION error NL data-division-content {printOnError("Al definir el titular de data division content. Se esperaba un punto ( . ) en tercer lugar\n");}
+                    | DATA DIVISION DOT error data-division-content {printOnError("Se esperaba un salto de linea para poder analizar data-division-content \n");}
+                    | DATA DIVISION DOT NL error {printOnError("Esta mal definido data-division-content. *REVISAR DOCUMENTACION* \n");}
                     
 ;
-enviroment-division-content: NL
-                           | configuration-section 
-                           | input-output-section  
-                           | configuration-section input-output-section                       
+enviroment-division-content:
+                           |configuration-section {/*Agrego al arbol el hijo de cobol-source-program*/
+                                                    arbol[i]=" enviroment-division-content ==> configuration-section";
+                                                    i++;estado=1; envDivCont="configuration-section";}
+                           |input-output-section {/*Igual que en el de arriba, pero si se llegase a esta*/
+                                                    arbol[i]="  enviroment-division-content ==> input-output-section";
+                                                    i++;estado=1; envDivCont="input-output-section";}
+                           
 ;
-configuration-section: CONFIGURATION SECTION DOT NL configuration-section-paragraphs 
-                     | CONFIGURATION SECTION DOT NL error 
+configuration-section: CONFIGURATION SECTION DOT NL configuration-section-paragraphs {/*Misma dinamica con el arbol que arriba*/
+                                                                                   arbol[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
+                                                                                    i++;estado=1;}
+                     | error SECTION DOT NL configuration-section-paragraphs {printOnError("Se esperaba el token CONFIGURATION en la primera posicion.");}
+                     | CONFIGURATION error DOT NL configuration-section-paragraphs      {printOnError("Se esperaba el token SECTION en la segunda posicion.");}
+                     | CONFIGURATION SECTION error NL configuration-section-paragraphs  {printOnError("Se esperaba el token DOT (.) en la tercera posicion.");}
+                     | CONFIGURATION SECTION DOT error configuration-section-paragraphs {printOnError("Se esperaba el token  NL en la cuarta posicion.");}
 ;
-data-division-content: NL {/*Esto me permite obviar el dar el contenido de data division*/}
-                     | FILEM  SECTION DOT file-description-entry 
+data-division-content:
+                     | FILEM SECTION DOT NL file-description-entry {
+                                                                arbol[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry ";
+                                                                i++;estado=1;
+                                                                }
+                     | error SECTION DOT NL file-description-entry {printOnError("Se esperaba el token FILEM en la definicion de data-division-content");}
+                     | FILEM error DOT NL file-description-entry {printOnError("Se esperaba el token SECTION en la definicion de data-division-content");}
+                     | FILEM SECTION error NL file-description-entry {printOnError("Se esperaba el token DOT en la definicion de data-division-content");}
+                     | FILEM SECTION DOT error file-description-entry {printOnError("Se esperaba el token NL en la definicion de data-division-content");}
 ;
 
-file-description-entry: {/*Esta vacio por prueba*/}
-                      | FILEM SECTION DOT NL FD ID_FILE WORKSTGSEC
+file-description-entry: FILEM SECTION DOT NL FD ID_FILE {arbol[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID_FILE ";
+                                                                    i++;estado=1;
+                                                                   }
+                      | error SECTION DOT NL FD ID_FILE  {printOnError("Se esperaba el token FILE en file-description-entry");}
+                      | FILEM error DOT NL FD ID_FILE {printOnError("Se esperaba el token SECTION en file-description-entry");}
+                      | FILEM SECTION error NL FD ID_FILE {printOnError("Se esperaba el token DOT en file-description-entry");}
+                      | FILEM SECTION DOT error FD ID_FILE {printOnError("Se esperaba el token NL en file-description-entry");}
+                      | FILEM SECTION DOT NL error ID_FILE {printOnError("Se esperaba el token FD en file-description-entry");}
+                      | FILEM SECTION DOT NL FD error {printOnError("Se esperaba el token ID_FILE en file-description-entry");}               
 ;
-input-output-section: FILEM  CONTROL DOT file-control-entry 
+input-output-section: FILEM CONTROL DOT NL file-control-entry {arbol[i]="input-output-section ==> FILEM CONTROL DOT NL file-control-entry ";
+                                                                i++;estado=1;}
+                    | error CONTROL DOT NL file-control-entry {printOnError("Se esperaba el token FILEM en input-output-section");}
+                    | FILEM error DOT NL file-control-entry {printOnError("Se esperaba el CONTROL en input-output-section");}
+                    | FILEM CONTROL error NL file-control-entry {printOnError("Se esperaba el token DOT en input-output-section");}
+                    | FILEM CONTROL DOT error file-control-entry {printOnError("Se esperaba el token NL en input-output-section");}
 ;
 
-file-control-entry: ID_FILE DOT ID_FILE
+file-control-entry: ID_FILE DOT ID_FILE {arbol[i]=" file-control-entry ==> ID_FILE DOT ID_FILE";
+                                         i++;estado=1;}
 ;
 
-configuration-section-paragraphs: 
-                                | SOURCE COMPUTER DOT ID_COMPUTER DOT
-                                | OBJECT COMPUTER DOT ID_COMPUTER DOT
-                                | SOURCE COMPUTER DOT ID_COMPUTER DOT NL OBJECT COMPUTER DOT ID_COMPUTER DOT
+configuration-section-paragraphs:
+                                | SOURCE COMPUTER DOT ID_COMPUTER DOT {arbol[i]=" configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID_COMPUTER DOT";
+                                         i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/}
+                                | OBJECT COMPUTER DOT ID_COMPUTER DOT {arbol[i]=" configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID_COMPUTER DOT";
+                                         i++;estado=1; confSecParag=1;}
+                                
 ;
 
 %%
 
-void prueba(){ 
-    printf("Esta todo en orden \n");
+void showLine(int line){
+    printf("N linea: %d", line);
+}
+
+void printOnError(char *err){ 
+    //Seteo para que sea mas facil pasar un mensaje de error, en los controlados
+    printf("\033[0;31m "); //seteo a rojo para la palabra error
+    printf("\n ERROR: ");
+    //printf("\033[0;35m");
+    printf("\033[0m "); //Vuelvo a blanco
+    printf("%s \n", err);
 }
 
 int yyerror(char *msg){
-    
-    char *messageP;
-    if(msg == "Syntax error"){
-        printf("\n ASDASD \n");
-    }
-    
-    printf("\n Error encontrado!"); 
-    printf("\n Error tipo: %s \n", msg);
-    // yyparse();
+    /*ESTA FUNCION SE LLAMA SIEMPRE QUE SURJA UN ERROR*/
+    printf("\n Error encontrado!\n "); 
+    //Ver si con esto logro lo de mostrar una sola vez mi mensaje personalizado
+    proneToShow = 1;
 }
 
 int main(int argc, char **argv){
     
-    if (argc > 1) yyin = fopen(argv[1], "rt");
+    if (argc > 1) yyin = fopen(argv[1], "rt\n ");
     else {
         yyin = stdin;
-        printf("\n Para respetar correctamente el formato de input de COBOL. Lea el documento LEER.txt \n");
-        printf("Si no se respecta correctamente, va a fallar, sin importar que tan correcta sea la estructura.\n");
-        printf("\n\n.............................................\n\n");
+        printf("\n\nRecomiendo leer la documentacion para comprender como manejar los saltos de linea. \n");
+        printf("Este analizador intenta emular codigo COBOL. Por lo que es importante considerarlos. \n");
+        printf("----------------------------------------------------------\n\n");
+        printf("Ingrese su cadena: \n");
         }
 
     
@@ -97,238 +175,33 @@ int main(int argc, char **argv){
     return 0;
 }
 int yywrap() {
-	EstadoScanner=2;
-	printf("El analisis ha concluido\n");
+	// EstadoScanner=2;
+	printf("El analisis ha concluido\n\n ");
 	return 1;
 }
 
-int DibujarTodo(int SubParam){
-	// DibujarTablaDeTokens();
-	DibujarArbolDeDerivacion(SubParam);
-	return 0;
-}
+void dibujoArbol(int caso){
+    printf("_____________-ARBOL DE DERIVACIONES-_____________");
+    printf("           cobol-source-program\n");
+    printf("                    |\n");
 
-int DibujarArbolDeDerivacion(int SubTipo){
-	int ContAuxT,ContAuxK;
-	int LargoPalabra;
+    switch(caso){
+        case 1:
+        printf("ENVIROMENT DIVISION DOT NL enviroment-division-content\n");
+        printf("                                        |\n");
+        printf("                                        --------\n");
+        printf("                                                |\n");
+        printf("                                          %s", envDivCont);
+        
+            break;
+        
+        case 2:
+        
+            break;
+        
+        case 3:
 
-/* la pantalla tiene un maximo de 1-79 caracteres */
-	printf("-----------------------------ARBOL DE DERIVACIONES-----------------------------\n\n");
-	printf("                          discriminant_specification\n");
-	printf("                                       |\n");
+            break;
+    }
 
-	switch (SubTipo){
-		case 1:
-			printf("                              ---------+--------------\n");
-			printf("                              |              |       |\n");
-			printf("                   defining_identifier_list \":\" subtype_mark\n");
-			printf("                              |                      |\n");
-			if (SubIndiceMax==3){
-				EscribirCentrado(31,"def_id",54,Token[2],0);
-				printf("                              |                      |\n");
-				EscribirCentrado(31,Token[0],54,Lexema[2],0);
-				printf("                              |\n");
-				EscribirCentrado(31,Lexema[0],0);}
-			else{
-				printf("              ----------------+-----           IDENTIFICADOR\n");
-				printf("              |              |     |                 |\n");
-				printf("   defining_identifier_list \",\" def_id");
-				EscribirCentrado(16,Lexema[SubIndiceMax-1],0);
-				printf("              |                    |\n");
-				printf("              |              IDENTIFICADOR\n");
-				printf("              |                    |\n");
-				EscribirCentrado(15,"|",36,Lexema[SubIndiceMax-3],0);
-				printf("              |\n");
-				printf("              -----------------\n");
-				printf("                              |\n");
-				for (ContAuxK=(SubIndiceMax-5);ContAuxK>=0;ContAuxK-=2){
-					if (ContAuxK==0){
-						EscribirCentrado(31,"def_id",0);
-						printf("                              |\n");
-						EscribirCentrado(31,Token[0],0);
-						printf("                              |\n");
-						EscribirCentrado(31,Lexema[0],0);}
-					else{
-						printf("              ----------------+-----\n");
-						printf("              |              |     |\n");
-						printf("   defining_identifier_list \",\" def_id\n");
-						printf("              |                    |\n");
-						printf("              |              IDENTIFICADOR\n");
-						printf("              |                    |\n");
-						EscribirCentrado(15,"|",36,Lexema[ContAuxK],0);
-						printf("              |\n");
-						printf("              -----------------\n");
-						printf("                              |\n");}
-				}
-			}
-			break;
-		case 2:
-			printf("                  ---------------------+------------------------\n");
-			printf("                  |              |       |        |            |\n");
-			printf("       defining_identifier_list \":\" subtype_mark \":=\" default_expression\n");
-			printf("                  |                      |                     |\n");
-			if (SubIndiceMax==5){
-				EscribirCentrado(19,"def_id",42,Token[2],64,Token[4]);
-				printf("                  |                      |                     |\n");
-				EscribirCentrado(19,Token[0],42,Lexema[2],64,Lexema[4]);
-				printf("                  |\n");
-				EscribirCentrado(19,Lexema[0],0);}
-			else{
-				printf("           -------+--------------  IDENTIFICADOR");
-				EscribirCentrado(16,Token[SubIndiceMax-1],0);
-				printf("           |              |     |        |                     |\n");
-				printf("defining_identifier_list \",\" def_id");
-				EscribirCentrado(7,Lexema[SubIndiceMax-3],29,Lexema[SubIndiceMax-1],0);
-				printf("           |                    |\n");
-				printf("           |              IDENTIFICADOR\n");
-				printf("           |                    |\n");
-				EscribirCentrado(12,"|",33,Lexema[SubIndiceMax-5]);
-				printf("           --------\n");
-				printf("                  |\n");
-				for (ContAuxK=(SubIndiceMax-7);ContAuxK>=0;ContAuxK-=2){
-					if (ContAuxK==0){
-						EscribirCentrado(19,"def_id",0);
-						printf("                  |\n");
-						EscribirCentrado(19,Token[0],0);
-						printf("                  |\n");
-						EscribirCentrado(19,Lexema[0],0);}
-					else{
-						printf("           -------+--------------\n");
-						printf("           |              |     |\n");
-						printf("defining_identifier_list \",\" def_id\n");
-						printf("           |                    |\n");
-						printf("           |              IDENTIFICADOR\n");
-						printf("           |                    |\n");
-						EscribirCentrado(12,"|",33,Lexema[ContAuxK]);
-						printf("           -------\n");
-						printf("                 |\n");}
-					}
-				}
-			break;
-		case 3:
-			printf("                           ------------+--------------\n");
-			printf("                           |              |          |\n");
-			printf("                defining_identifier_list \":\" access_definition\n");
-			printf("                           |                         |\n");
-			if (SubIndiceMax==3){
-				EscribirCentrado(28,"def_id",54,Token[2],0);
-				printf("                           |                         |\n");
-				EscribirCentrado(28,Token[0],54,Lexema[2],0);
-				printf("                           |\n");
-				EscribirCentrado(28,Lexema[0],0);}
-			else{
-				printf("                 ----------+-----------          EXPRESION\n");
-				printf("                 |              |     |              |\n");
-				printf("      defining_identifier_list \",\" def_id");
-				EscribirCentrado(13,Lexema[SubIndiceMax-1],0);
-				printf("                 |                    |\n");
-				printf("                 |              IDENTIFICADOR\n");
-				printf("                 |                    |\n");
-				EscribirCentrado(18,"|",39,Lexema[SubIndiceMax-3],0);
-				printf("                 -----------\n");
-				printf("                           |\n");
-				for (ContAuxK=(SubIndiceMax-5);ContAuxK>=0;ContAuxK-=2){
-					if (ContAuxK==0){
-						EscribirCentrado(28,"def_id",0);
-						printf("                           |\n");
-						EscribirCentrado(28,Token[0],0);
-						printf("                           |\n");
-						EscribirCentrado(28,Lexema[0],0);}
-					else{
-						printf("                 ----------+-----------\n");
-						printf("                 |              |     |\n");
-						printf("      defining_identifier_list \",\" def_id\n");
-						printf("                 |                    |\n");
-						printf("                 |              IDENTIFICADOR\n");
-						printf("                 |                    |\n");
-						EscribirCentrado(18,"|",39,Lexema[ContAuxK],0);
-						printf("                 -----------\n");
-						printf("                           |\n");}
-				}
-			}
-			break;
-		case 4:
-			printf("               ------------------------+--------------------------\n");
-			printf("               |              |          |          |            |\n");
-			printf("    defining_identifier_list \":\" access_definition \":=\" default_expressionn\n");
-			printf("               |                         |                       |\n");
-			if (SubIndiceMax==5){
-				EscribirCentrado(16,"def_id",42,Token[2],66,Token[4]);
-				printf("               |                         |                       |\n");
-				EscribirCentrado(16,Token[0],42,Lexema[2],66,Lexema[4]);
-				printf("               |\n");
-				EscribirCentrado(16,Lexema[0],0);}
-			else{
-				printf("           ----+-----------------    EXPRESION");
-				EscribirCentrado(20,Token[SubIndiceMax-1],0);
-				printf("           |              |     |        |                       |\n");
-				printf("defining_identifier_list \",\" def_id");
-				EscribirCentrado(7,Lexema[SubIndiceMax-3],31,Lexema[SubIndiceMax-1],0);
-				printf("           |                    |\n");
-				printf("           |              IDENTIFICADOR\n");
-				printf("           |                    |\n");
-				EscribirCentrado(12,"|",33,Lexema[SubIndiceMax-5]);
-				printf("           -----\n");
-				printf("               |\n");
-				for (ContAuxK=(SubIndiceMax-7);ContAuxK>=0;ContAuxK-=2){
-					if (ContAuxK==0){
-						EscribirCentrado(16,"def_id",0);
-						printf("               |\n");
-						EscribirCentrado(16,Token[0],0);
-						printf("               |\n");
-						EscribirCentrado(16,Lexema[0],0);}
-					else{
-						printf("           ----+-----------------\n");
-						printf("           |              |     |\n");
-						printf("defining_identifier_list \",\" def_id\n");
-						printf("           |                    |\n");
-						printf("           |              IDENTIFICADOR\n");
-						printf("           |                    |\n");
-						EscribirCentrado(12,"|",33,Lexema[ContAuxK]);
-						printf("           -----\n");
-						printf("               |\n");}
-					}
-				}
-			break;
-	}
-	return 0;
-}
-
-int EscribirCentrado(int CenUno, char* CadUno, int CenDos, char* CadDos, int CenTres, char* CadTres){
-	int Longitud, MaxLineas, MaxEspacios, K;
-
-	Longitud=strlen(CadUno);
-	MaxEspacios=CenUno-(Longitud/2)-1;
-	for (K=0;K<MaxEspacios;K++){
-		printf(" ");
-	}
-	printf("%s",CadUno);
-
-	if (CenDos==0){
-		printf("\n");
-		return 0;}
-
-	MaxLineas=MaxEspacios+Longitud;
-
-	Longitud=strlen(CadDos);
-	MaxEspacios=CenDos-(Longitud/2)-MaxLineas-1;
-	for (K=0;K<MaxEspacios;K++){
-		printf(" ");
-	}
-	printf("%s",CadDos);
-
-	if (CenTres==0){
-		printf("\n");
-		return 0;}
-
-	MaxLineas+=MaxEspacios+Longitud;
-
-	Longitud=strlen(CadTres);
-	MaxEspacios=CenTres-(Longitud/2)-MaxLineas-1;
-	for (K=0;K<MaxEspacios;K++){
-		printf(" ");
-	}
-	printf("%s\n",CadTres);
-
-	return 0;
 }

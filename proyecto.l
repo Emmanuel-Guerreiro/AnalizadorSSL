@@ -8,6 +8,7 @@ void showTable();
 /*Hay una variable por cada token, CUando aparece una 
 palabra, que devuelve un token, tambien aumenta en uno la 
 cantidad de su variable correspondiente*/
+int totLine = 1; //ESta contabiliza la cantidad total de lineas de la entrada (contando espacios)
 int ntok = 0, ndot = 0, nenv = 0, ndiv = 0, ndata = 0;
 int nsec = 0, nconf = 0, nidcomp = 0;
 int nidfile = 0, nfile = 0, nctrl = 0;
@@ -32,7 +33,7 @@ cadenap ({palabras}{digitos})
             return ID_FILE; 
            }
 "\t" {return TAB;}
-"\n" {return NL;}
+"\n" {totLine++;return NL;}
 "." {ntok++; ndot++; return DOT;}
 "ENVIROMENT" {ntok++; nenv++; return ENVIROMENT;}
 "DIVISION" {ntok++; ndiv++; return DIVISION;}
@@ -46,20 +47,22 @@ cadenap ({palabras}{digitos})
 "OBJECT" {ntok++; nobj++; return OBJECT;}
 "DESCRIPTION" {ntok++; return DESCRIPTION;}
 "FD" {ntok++; return FD;}
-"WORKING-STORAGE-SECTION" {ntok++; return WORKSTGSEC;}
+
 
 "TERMINAR" {
     int i=0;
     printf("\n");
     for (i=0;i<=70;i++) printf("-");printf("\n");
     for (i=0;i<=70;i++) printf("-");printf("\n");
+    
+    printf("Se han reconocido %d tokens, en %d lineas (contanto saltos de linea) \n", ntok, totLine);
     printf( "====================TABLA DE TOKENS====================\n\n");
     if(ntok > 0){
         printf("\n Tokens reconocidos: %d \n", ntok);
         printf("\n Lista de tokens y sus cantidades: \n");
 
         if( ndot > 0)  printf("DOT --->  Asociado al lexema punto ( . ) => %d \n", ndot);
-        if( nenv > 0)  printf("ENVIROMENT ---> Asociado al lexema ENVIROMENT ....... %d \n ", nenv);
+        if( nenv > 0)  printf("ENVIROMENT ---> Asociado al lexema ENVIROMENT ....... %d \n", nenv);
         if( ndiv > 0)  printf("DIVISION ---> Asociado al lexema DIVISION ....... %d \n", ndiv);
         if( ndata > 0) printf("DATA ---> Asociado al lexema DATA ....... %d \n", ndata );
         if( nconf > 0) printf("CONFIGURATION ---> Asociado al lexema CONFIGURATION ....... %d \n",nconf );
@@ -70,7 +73,7 @@ cadenap ({palabras}{digitos})
     };
 
 
-    printf("------------ Hemos llegado al final del analisis. Saliendo ------------\n");
+    printf("\n\n------------ Hemos llegado al final del analisis. Saliendo ------------\n");
     exit(0);
 }
 
@@ -78,8 +81,6 @@ cadenap ({palabras}{digitos})
 
 %%
 
-void showTable(){
-    
-}
+
 
 
