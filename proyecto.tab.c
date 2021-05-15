@@ -1444,7 +1444,7 @@ yyreduce:
 #line 46 "proyecto.y"
                                                                              {if(estado == 1 && acepToken == 1){
                                                                                 //Esto corre al final, por lo tanto lo pone al ultimo
-                                                                                derivaciones[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content \n";
+                                                                                derivaciones[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL <enviroment-division-content> \n";
                                                                                 showInTree[j] = "\n\t ENVIROMENT DIVISION DOT NL <enviroment-division-content>";
                                                                                 ++j;
                                                                                 showInTree[j] = "\n\t <cobol-source-program>";
@@ -1474,7 +1474,7 @@ yyreduce:
 #line 71 "proyecto.y"
                                                                  {if(estado == 1 && acepToken == 1){
                                                                                 //Esto corre al final, por lo tanto lo pone al ultimo
-                                                                                derivaciones[i] = "\n<cobol-source-program> ==>  DATA DIVISION DOT NL data-division-content \n";
+                                                                                derivaciones[i] = "\n<cobol-source-program> ==>  DATA DIVISION DOT NL <data-division-content> \n";
                                                                                 showInTree[j] = "\n\t DATA DIVISION DOT NL <data-division-content>";
                                                                                 ++j;
                                                                                 showInTree[j] = "<cobol-source-program>";
@@ -1554,7 +1554,7 @@ yyreduce:
   case 17:
 #line 105 "proyecto.y"
                                                   {/*Agrego al arbol el hijo de cobol-source-program*/
-                                                    derivaciones[i]=" enviroment-division-content ==> configuration-section \n";
+                                                    derivaciones[i]="<enviroment-division-content> ==> <configuration-section> \n";
                                                     i++;estado=1; 
                                                     showInTree[j]="<configuration-section>"; 
                                                     j++;}
@@ -1564,7 +1564,7 @@ yyreduce:
   case 18:
 #line 110 "proyecto.y"
                                                  {/*Igual que en el de arriba, pero si se llegase a esta*/
-                                                    derivaciones[i]="  enviroment-division-content ==> input-output-section \n";
+                                                    derivaciones[i]="<enviroment-division-content> ==> <input-output-section> \n";
                                                     i++;estado=1;
                                                     showInTree[j]="<input-output-section>";
                                                     j++;}
@@ -1574,7 +1574,7 @@ yyreduce:
   case 19:
 #line 117 "proyecto.y"
                                                                                      {/*Misma dinamica con el arbol que arriba*/
-                                                                                   derivaciones[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs \n";
+                                                                                   derivaciones[i]="<configuration-section> ==> CONFIGURATION SECTION DOT NL <configuration-section-paragraphs> \n";
                                                                                     i++;estado=1;
                                                                                     showInTree[j]="CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
                                                                                     j++;}
@@ -1607,7 +1607,7 @@ yyreduce:
 
   case 25:
 #line 129 "proyecto.y"
-                                                             {derivaciones[i]="configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID DOT \n";
+                                                             {derivaciones[i]="<configuration-section-paragraphs> ==> SOURCE COMPUTER DOT ID DOT \n";
                                          i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/
                                          showInTree[j]="SOURCE COMPUTER DOT ID DOT";
                                          }
@@ -1616,7 +1616,7 @@ yyreduce:
 
   case 26:
 #line 133 "proyecto.y"
-                                                             {derivaciones[i]="configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID DOT \n";
+                                                             {derivaciones[i]="<configuration-section-paragraphs> ==> OBJECT COMPUTER DOT ID DOT \n";
                                          i++;estado=1; confSecParag=1;
                                          showInTree[j]="OBJECT COMPUTER DOT ID DOT";}
 #line 1623 "proyecto.tab.c"
@@ -1679,7 +1679,7 @@ yyreduce:
   case 37:
 #line 148 "proyecto.y"
                                                                    {
-                                                                derivaciones[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry \n";
+                                                                derivaciones[i]="<data-division-content> ==> FILEM SECTION DOT NL <file-description-entry> \n";
                                                                 i++;estado=1;
                                                                 showInTree[j]="FILEM SECTION DOT NL <file-description-entry>";
                                                                 j++;
@@ -1713,7 +1713,7 @@ yyreduce:
 
   case 42:
 #line 160 "proyecto.y"
-                              {derivaciones[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID \n";
+                              {derivaciones[i]="<file-description-entry> ==> FILEM SECTION DOT NL FD ID \n";
                                i++;estado=1;
                                showInTree[j]="FD ID";
                                }
@@ -1734,7 +1734,7 @@ yyreduce:
 
   case 45:
 #line 168 "proyecto.y"
-                                                           {derivaciones[i]="input-output-section ==> FILEM CONTROL DOT NL <file-control-entry> \n";
+                                                           {derivaciones[i]="<input-output-section> ==> FILEM CONTROL DOT NL <file-control-entry> \n";
                                                                 i++;estado=1;
                                                                 showInTree[j]="FILEM CONTROL DOT NL <file-control-entry>";
                                                                 j++;}
@@ -1767,7 +1767,7 @@ yyreduce:
 
   case 50:
 #line 178 "proyecto.y"
-                             {derivaciones[i]="file-control-entry ==> ID DOT ID \n";
+                             {derivaciones[i]="<file-control-entry> ==> ID DOT ID \n";
                                          i++;estado=1;
                                          showInTree[j]="ID DOT ID";}
 #line 1774 "proyecto.tab.c"
@@ -2073,7 +2073,7 @@ int yywrap() {
 }
 
 void dibujoArbol(int caso){
-    printf("\t\n_____________-ARBOL DE DERIVACIONES-_____________");
+    printf("\t\n_____________-ARBOL DE DERIVACIONES-_____________ \n\n");
     
     for(j; j>=0; j--){
         printf("\t %s", showInTree[j]);

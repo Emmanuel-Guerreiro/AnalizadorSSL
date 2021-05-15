@@ -45,7 +45,7 @@ mi_axioma: cobol-source-program | mi_axioma cobol-source-program
 cobol-source-program: NL {/*Si lo borro pierdo la posibilidad de agregar mas*/}
                     | ENVIROMENT DIVISION DOT NL enviroment-division-content {if(estado == 1 && acepToken == 1){
                                                                                 //Esto corre al final, por lo tanto lo pone al ultimo
-                                                                                derivaciones[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content \n";
+                                                                                derivaciones[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL <enviroment-division-content> \n";
                                                                                 showInTree[j] = "\n\t ENVIROMENT DIVISION DOT NL <enviroment-division-content>";
                                                                                 ++j;
                                                                                 showInTree[j] = "\n\t <cobol-source-program>";
@@ -70,7 +70,7 @@ cobol-source-program: NL {/*Si lo borro pierdo la posibilidad de agregar mas*/}
                                                                            }
                     | DATA DIVISION DOT NL data-division-content {if(estado == 1 && acepToken == 1){
                                                                                 //Esto corre al final, por lo tanto lo pone al ultimo
-                                                                                derivaciones[i] = "\n<cobol-source-program> ==>  DATA DIVISION DOT NL data-division-content \n";
+                                                                                derivaciones[i] = "\n<cobol-source-program> ==>  DATA DIVISION DOT NL <data-division-content> \n";
                                                                                 showInTree[j] = "\n\t DATA DIVISION DOT NL <data-division-content>";
                                                                                 ++j;
                                                                                 showInTree[j] = "<cobol-source-program>";
@@ -103,19 +103,19 @@ cobol-source-program: NL {/*Si lo borro pierdo la posibilidad de agregar mas*/}
 ;
 enviroment-division-content:NL
                            |configuration-section {/*Agrego al arbol el hijo de cobol-source-program*/
-                                                    derivaciones[i]=" enviroment-division-content ==> configuration-section \n";
+                                                    derivaciones[i]="<enviroment-division-content> ==> <configuration-section> \n";
                                                     i++;estado=1; 
                                                     showInTree[j]="<configuration-section>"; 
                                                     j++;}
                            |input-output-section {/*Igual que en el de arriba, pero si se llegase a esta*/
-                                                    derivaciones[i]="  enviroment-division-content ==> input-output-section \n";
+                                                    derivaciones[i]="<enviroment-division-content> ==> <input-output-section> \n";
                                                     i++;estado=1;
                                                     showInTree[j]="<input-output-section>";
                                                     j++;}
                            
 ;
 configuration-section: CONFIGURATION SECTION DOT NL configuration-section-paragraphs {/*Misma dinamica con el arbol que arriba*/
-                                                                                   derivaciones[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs \n";
+                                                                                   derivaciones[i]="<configuration-section> ==> CONFIGURATION SECTION DOT NL <configuration-section-paragraphs> \n";
                                                                                     i++;estado=1;
                                                                                     showInTree[j]="CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
                                                                                     j++;}
@@ -126,11 +126,11 @@ configuration-section: CONFIGURATION SECTION DOT NL configuration-section-paragr
 ;
 
 configuration-section-paragraphs:
-                                | SOURCE COMPUTER DOT ID DOT {derivaciones[i]="configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID DOT \n";
+                                | SOURCE COMPUTER DOT ID DOT {derivaciones[i]="<configuration-section-paragraphs> ==> SOURCE COMPUTER DOT ID DOT \n";
                                          i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/
                                          showInTree[j]="SOURCE COMPUTER DOT ID DOT";
                                          }
-                                | OBJECT COMPUTER DOT ID DOT {derivaciones[i]="configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID DOT \n";
+                                | OBJECT COMPUTER DOT ID DOT {derivaciones[i]="<configuration-section-paragraphs> ==> OBJECT COMPUTER DOT ID DOT \n";
                                          i++;estado=1; confSecParag=1;
                                          showInTree[j]="OBJECT COMPUTER DOT ID DOT";}
                                 | error COMPUTER DOT ID DOT {printOnError("Se esperaba token SOURCE o OBJECT en configuration-section-paragraphs");}
@@ -146,7 +146,7 @@ configuration-section-paragraphs:
 
 data-division-content:
                      | FILEM SECTION DOT NL file-description-entry {
-                                                                derivaciones[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry \n";
+                                                                derivaciones[i]="<data-division-content> ==> FILEM SECTION DOT NL <file-description-entry> \n";
                                                                 i++;estado=1;
                                                                 showInTree[j]="FILEM SECTION DOT NL <file-description-entry>";
                                                                 j++;
@@ -157,7 +157,7 @@ data-division-content:
                      | FILEM SECTION DOT error file-description-entry {printOnError("Se esperaba el token NL en la definicion de data-division-content");}
 ;
 
-file-description-entry: FD ID {derivaciones[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID \n";
+file-description-entry: FD ID {derivaciones[i]="<file-description-entry> ==> FILEM SECTION DOT NL FD ID \n";
                                i++;estado=1;
                                showInTree[j]="FD ID";
                                }
@@ -165,7 +165,7 @@ file-description-entry: FD ID {derivaciones[i]=" file-description-entry ==> FILE
                       | FD error {printOnError("Se esperaba el token ID en file-description-entry");}
 ;
 
-input-output-section: FILEM CONTROL DOT file-control-entry {derivaciones[i]="input-output-section ==> FILEM CONTROL DOT NL <file-control-entry> \n";
+input-output-section: FILEM CONTROL DOT file-control-entry {derivaciones[i]="<input-output-section> ==> FILEM CONTROL DOT NL <file-control-entry> \n";
                                                                 i++;estado=1;
                                                                 showInTree[j]="FILEM CONTROL DOT NL <file-control-entry>";
                                                                 j++;}
@@ -175,7 +175,7 @@ input-output-section: FILEM CONTROL DOT file-control-entry {derivaciones[i]="inp
                     | FILEM CONTROL DOT error file-control-entry {printOnError("Se esperaba el token NL en input-output-section");}
 ;
 
-file-control-entry:ID DOT NL {derivaciones[i]="file-control-entry ==> ID DOT ID \n";
+file-control-entry:ID DOT NL {derivaciones[i]="<file-control-entry> ==> ID DOT ID \n";
                                          i++;estado=1;
                                          showInTree[j]="ID DOT ID";}
                   |error DOT NL {printOnError("Se esperaba token ID al definir file-control-entry");}
@@ -233,7 +233,7 @@ int yywrap() {
 }
 
 void dibujoArbol(int caso){
-    printf("\t\n_____________-ARBOL DE DERIVACIONES-_____________");
+    printf("\t\n_____________-ARBOL DE DERIVACIONES-_____________ \n\n");
     
     for(j; j>=0; j--){
         printf("\t %s", showInTree[j]);
