@@ -79,17 +79,17 @@ void showLine(int line);
 void printOnError(char *err);
 void dibujoArbol(int caso);
 
-char *arbol[30];
+char *derivaciones[30];
 int i = 0, ntries = 0; //ntries cuenta que ejemplo de entrada es.
 int nlines = 0; //Este cuenta las lineas dentro de un ejemplo, para dar un mejor error
 /*Las siguientes constantes sirven para saber que mostrar en el arbol*/
 int confSecParag=0; //Sirve para saber si mostrar el conf-sec-paragraphs en el arbol de derivacion
-char *envDivCont;
-
+char *envDivCont[10];
+char *showInTree[5]; //Este es el que se corre en la funcion de mostrar arbol
+int j = 0; //me sirve para poder ir acomodando los items en el array de showInTree
 
 
 short int estado=1, acepToken=1;
-int nline = 0;
 short int proneToShow = 1; /*Permite que no salte muchas veces un mensaje en errores reiterados
 (como si fuera el yyerror que solo se llama una vez)*/
 
@@ -141,26 +141,22 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ID_COMPUTER = 258,
-    ID_FILE = 259,
+    ID = 258,
+    TAB = 259,
     NL = 260,
-    SOURCE = 261,
-    COMPUTER = 262,
-    OBJECT = 263,
-    CONFIGURATION = 264,
+    DOT = 261,
+    ENVIROMENT = 262,
+    DIVISION = 263,
+    DATA = 264,
     SECTION = 265,
-    DOT = 266,
-    TAB = 267,
-    DIVISION = 268,
-    ENVIROMENT = 269,
-    DATA = 270,
-    CONTROL = 271,
-    FCTRL = 272,
-    FCENT = 273,
-    FILEM = 274,
-    CTRL = 275,
-    DESCRIPTION = 276,
-    FD = 277
+    CONFIGURATION = 266,
+    FILEM = 267,
+    CONTROL = 268,
+    SOURCE = 269,
+    COMPUTER = 270,
+    OBJECT = 271,
+    DESCRIPTION = 272,
+    FD = 273
   };
 #endif
 
@@ -172,9 +168,8 @@ union YYSTYPE
 
     int digitos;
     char *letras;
-    char *fileeId;
 
-#line 178 "proyecto.tab.c"
+#line 173 "proyecto.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -493,19 +488,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  12
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   175
+#define YYLAST   191
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  23
+#define YYNTOKENS  19
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  10
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  45
+#define YYNRULES  53
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  145
+#define YYNSTATES  156
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   277
+#define YYMAXUTOK   273
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -544,18 +539,19 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21,    22
+      15,    16,    17,    18
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    45,    45,    45,    47,    48,    69,    70,    71,    72,
-      73,    74,    75,    76,    77,    78,    81,    82,    85,    90,
-      93,    94,    95,    96,    98,    99,   103,   104,   105,   106,
-     109,   112,   113,   114,   115,   116,   117,   119,   121,   122,
-     123,   124,   127,   131,   132,   134
+       0,    43,    43,    43,    45,    46,    71,    93,    94,    95,
+      96,    97,    98,    99,   100,   101,   104,   105,   110,   117,
+     122,   123,   124,   125,   128,   129,   133,   136,   137,   138,
+     139,   140,   141,   142,   143,   144,   147,   148,   154,   155,
+     156,   157,   160,   164,   165,   168,   172,   173,   174,   175,
+     178,   181,   182,   183
 };
 #endif
 
@@ -564,14 +560,13 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "ID_COMPUTER", "ID_FILE", "NL", "SOURCE",
-  "COMPUTER", "OBJECT", "CONFIGURATION", "SECTION", "DOT", "TAB",
-  "DIVISION", "ENVIROMENT", "DATA", "CONTROL", "FCTRL", "FCENT", "FILEM",
-  "CTRL", "DESCRIPTION", "FD", "$accept", "mi_axioma",
-  "cobol-source-program", "enviroment-division-content",
-  "configuration-section", "data-division-content",
-  "file-description-entry", "input-output-section", "file-control-entry",
-  "configuration-section-paragraphs", YY_NULLPTR
+  "$end", "error", "$undefined", "ID", "TAB", "NL", "DOT", "ENVIROMENT",
+  "DIVISION", "DATA", "SECTION", "CONFIGURATION", "FILEM", "CONTROL",
+  "SOURCE", "COMPUTER", "OBJECT", "DESCRIPTION", "FD", "$accept",
+  "mi_axioma", "cobol-source-program", "enviroment-division-content",
+  "configuration-section", "configuration-section-paragraphs",
+  "data-division-content", "file-description-entry",
+  "input-output-section", "file-control-entry", YY_NULLPTR
 };
 #endif
 
@@ -581,17 +576,16 @@ static const char *const yytname[] =
 static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277
+     265,   266,   267,   268,   269,   270,   271,   272,   273
 };
 # endif
 
-#define YYPACT_NINF (-12)
+#define YYPACT_NINF (-53)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-44)
+#define YYTABLE_NINF (-37)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -600,21 +594,22 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      52,    -8,   -12,    55,    57,    47,   -12,    24,    30,    54,
-      43,    68,   -12,   -12,   102,    96,   116,   117,   119,   121,
-      97,     3,   -12,    23,   -12,    23,    25,    25,    25,    45,
-      17,     9,    33,   -12,   -12,   -12,   -12,    78,    35,   -12,
-     -12,    74,    85,   -12,   -12,   -12,    74,   -12,   101,   118,
-     120,    70,   122,    79,    81,   123,   124,   125,   126,   127,
-     133,   134,   135,    98,   136,   137,    99,   138,   104,   139,
-     140,   141,   142,     1,   144,    83,    83,    83,    83,    10,
-      12,    12,    12,   144,   144,   144,    83,   144,    12,    12,
-     143,   145,   147,    86,   -12,   -12,   146,   -12,   -12,   -12,
-     -12,   -12,   -12,   -12,   -12,   -12,   -12,   -12,   -12,   -12,
-     148,   149,   150,   151,    82,   152,   153,   160,   161,   162,
-     163,   105,   -12,   106,   154,   155,   108,   128,   129,    -1,
-     165,   -12,   -12,   166,   167,   168,   169,   107,   -12,   -12,
-     -12,   -12,   -12,   -12,   -12
+      89,    40,   -53,     5,    64,    86,   -53,   106,   114,    53,
+     115,    91,   -53,   -53,    52,     7,   130,   142,   143,   144,
+      41,    38,   -53,    77,   -53,    77,    51,    51,    51,    61,
+      70,   -53,    30,    54,   -53,   -53,   -53,   -53,   123,    14,
+     -53,   -53,   136,    43,   -53,   -53,   -53,   136,   -53,   122,
+     145,   146,    98,   147,    99,   100,   148,   149,   150,   151,
+     153,   154,   155,   156,   112,   157,   158,   117,   159,    33,
+     160,   161,   162,   163,     0,    68,    21,    21,    21,    21,
+       1,     2,     2,     2,    68,    78,   101,   -53,    21,    68,
+       2,     2,    26,     9,    10,   137,   -53,   -53,   164,   -53,
+     135,   -53,   -53,   -53,   -53,   131,   -53,   -53,   166,   -53,
+     -53,   -53,   -53,   167,   -53,   168,   118,   -53,   165,   169,
+     102,   170,   108,   -53,   -53,   -53,   -53,   -53,   -53,   171,
+     174,   175,   138,   176,   177,   141,   178,   179,   180,   181,
+     109,   182,   183,   184,   110,   -53,   -53,   -53,   -53,   -53,
+     -53,   -53,   -53,   -53,   -53,   -53
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -625,30 +620,31 @@ static const yytype_int8 yydefact[] =
        0,     0,     4,     0,     0,     0,     2,     0,     0,     0,
        0,     0,     1,     3,     0,     0,     0,     0,     0,     0,
        0,     0,    10,     0,     9,     0,     0,     0,     0,     0,
-       0,     0,     0,     7,    17,    11,    18,     0,     0,     8,
-       5,     0,     0,    12,    13,    14,    15,     6,     0,     0,
+       0,    16,     0,     0,     7,    17,    11,    18,     0,     0,
+       8,     5,     0,     0,    12,    13,    14,    15,     6,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    43,    43,    43,    43,     0,
-       0,     0,     0,     0,     0,     0,    43,     0,     0,     0,
-       0,     0,     0,     0,    26,    20,     0,    38,    21,    22,
-      23,    19,    27,    39,    28,    29,    25,    40,    41,    37,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    42,     0,     0,     0,     0,     0,     0,     0,
-       0,    44,    45,     0,     0,     0,     0,     0,    31,    32,
-      33,    34,    35,    36,    30
+       0,     0,     0,     0,     0,     0,     0,    45,     0,     0,
+       0,     0,     0,     0,     0,     0,    20,    38,     0,    46,
+       0,    21,    22,    23,    19,     0,    39,    47,     0,    40,
+      41,    37,    48,     0,    49,     0,     0,    43,     0,     0,
+       0,     0,     0,    44,    42,    51,    52,    53,    50,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    27,    28,    29,    30,    31,
+      25,    32,    33,    34,    35,    26
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -12,   -12,   170,   100,   -12,    87,    -4,   -12,   -11,    42
+     -53,   -53,   186,   120,   -53,    48,   103,    -6,   -53,   -52
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     5,     6,    33,    34,    35,    94,    36,   103,    95
+      -1,     5,     6,    34,    35,    96,    36,    97,    37,   107
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -656,87 +652,94 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-     136,   -43,    90,   -16,    30,     7,   -43,    91,   -16,    92,
-      50,    90,    31,    90,    96,   -43,   -43,   -16,   -16,    51,
-      93,   137,    32,   -16,    37,   -24,    41,    48,   -16,    93,
-     -24,    93,    31,    49,    52,    14,    56,   -16,   -16,   -24,
-     -24,    15,    38,    53,    42,   -24,    46,    12,     1,    54,
-     -24,    54,     2,     1,    18,    16,     8,     2,    10,   -24,
-     -24,     3,     4,    97,    42,    17,     3,     4,     9,    19,
-      11,    62,   107,   108,   109,   102,   104,   105,   106,    20,
-      65,    63,    67,   120,    57,   102,    58,   113,    55,    91,
-      66,    92,    68,   121,    49,    53,   114,    22,    28,    77,
-      81,    23,    29,    78,    82,    84,   128,    21,   143,    85,
-     129,   144,    59,    43,    44,    45,    47,    98,    99,   100,
-     101,    24,    25,    39,    26,    40,    27,     0,   130,    60,
-     133,    61,    73,    64,    69,    70,    71,    72,    74,    75,
-      76,    79,    80,    83,    86,    87,    88,    89,    96,     0,
-     134,   135,   111,   110,   112,     0,   122,   115,   123,   116,
-     117,   118,   119,   124,   125,   131,   132,   126,   127,   138,
-     139,   140,   141,   142,     0,    13
+     -24,    92,   105,   108,    86,   -24,     8,   -24,    22,   -24,
+     119,   121,    23,     9,    93,    57,    94,    87,    95,    95,
+      95,   -24,   100,    99,   120,   122,   -24,    55,   -24,   117,
+     -24,    51,   112,   114,    85,    93,    86,    94,   -36,    30,
+      52,   118,    28,    31,    59,   -36,    29,   -36,     7,    32,
+      33,   -36,    42,    54,    16,    53,   -36,    21,   -36,    17,
+     -36,   -36,    47,    43,    54,    10,   -36,    55,   -36,    98,
+     -36,    86,    11,    43,   106,   109,   110,   111,    38,    98,
+      49,    86,    31,    50,   113,   106,    12,     1,    32,    39,
+       1,     2,    19,     3,     2,     4,     3,    20,     4,    63,
+      66,    68,   115,   131,    64,    67,    69,   116,   132,   134,
+     149,   154,    14,    78,   135,   150,   155,    79,    82,   127,
+      15,    18,    83,   128,   101,   102,   103,   104,    60,    44,
+      45,    46,    48,    56,   117,    24,    50,   113,   123,   139,
+     124,   140,   143,    40,   144,    41,    58,    25,    26,    27,
+     118,    61,    62,    65,    70,    71,    72,    73,    74,    75,
+      76,    77,    80,    81,    84,    88,    89,    90,    91,   117,
+     113,   129,   125,   126,   136,   130,   133,   137,   138,   141,
+     142,     0,     0,     0,   145,   146,   147,   148,   151,   152,
+     153,    13
 };
 
 static const yytype_int8 yycheck[] =
 {
-       1,     0,     1,     0,     1,    13,     5,     6,     5,     8,
-       1,     1,     9,     1,     4,    14,    15,    14,    15,    10,
-      19,    22,    19,     0,     1,     0,     1,    10,     5,    19,
-       5,    19,     9,    16,     1,    11,     1,    14,    15,    14,
-      15,    11,    19,    10,    19,     0,     1,     0,     1,    16,
-       5,    16,     5,     1,    11,     1,     1,     5,     1,    14,
-      15,    14,    15,    74,    19,    11,    14,    15,    13,     1,
-      13,     1,    83,    84,    85,    79,    80,    81,    82,    11,
-       1,    11,     1,     1,    10,    89,     1,     1,    10,     6,
-      11,     8,    11,    11,    16,    10,    10,     1,     1,     1,
-       1,     5,     5,     5,     5,     1,     1,     5,     1,     5,
-       5,     4,    11,    26,    27,    28,    29,    75,    76,    77,
-      78,     5,     5,    23,     5,    25,     5,    -1,    22,    11,
-      22,    11,     5,    11,    11,    11,    11,    11,     5,     5,
-       5,     5,     5,     5,     5,     5,     5,     5,     4,    -1,
-      22,    22,     7,    10,     7,    -1,     4,    11,     5,    11,
-      11,    11,    11,     3,     3,    11,    11,     5,     5,     4,
-       4,     4,     4,     4,    -1,     5
+       0,     1,     1,     1,     3,     5,     1,     7,     1,     9,
+       1,     1,     5,     8,    14,     1,    16,    69,    18,    18,
+      18,     0,     1,    75,    15,    15,     5,    13,     7,     3,
+       9,     1,    84,    85,     1,    14,     3,    16,     0,     1,
+      10,    15,     1,     5,     1,     7,     5,     9,     8,    11,
+      12,     0,     1,    10,     1,     1,     5,     5,     7,     6,
+       9,     0,     1,    12,    10,     1,     5,    13,     7,     1,
+       9,     3,     8,    12,    80,    81,    82,    83,     1,     1,
+      10,     3,     5,    13,     6,    91,     0,     1,    11,    12,
+       1,     5,     1,     7,     5,     9,     7,     6,     9,     1,
+       1,     1,     1,     1,     6,     6,     6,     6,     6,     1,
+       1,     1,     6,     1,     6,     6,     6,     5,     1,     1,
+       6,     6,     5,     5,    76,    77,    78,    79,     6,    26,
+      27,    28,    29,    10,     3,     5,    13,     6,     1,     1,
+       3,     3,     1,    23,     3,    25,    10,     5,     5,     5,
+      15,     6,     6,     6,     6,     6,     6,     6,     5,     5,
+       5,     5,     5,     5,     5,     5,     5,     5,     5,     3,
+       6,     6,     5,     5,     3,     6,     6,     3,     3,     3,
+       3,    -1,    -1,    -1,     6,     6,     6,     6,     6,     6,
+       6,     5
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     1,     5,    14,    15,    24,    25,    13,     1,    13,
-       1,    13,     0,    25,    11,    11,     1,    11,    11,     1,
-      11,     5,     1,     5,     5,     5,     5,     5,     1,     5,
-       1,     9,    19,    26,    27,    28,    30,     1,    19,    26,
-      26,     1,    19,    28,    28,    28,     1,    28,    10,    16,
-       1,    10,     1,    10,    16,    10,     1,    10,     1,    11,
-      11,    11,     1,    11,    11,     1,    11,     1,    11,    11,
-      11,    11,    11,     5,     5,     5,     5,     1,     5,     5,
-       5,     1,     5,     5,     1,     5,     5,     5,     5,     5,
-       1,     6,     8,    19,    29,    32,     4,    31,    32,    32,
-      32,    32,    29,    31,    29,    29,    29,    31,    31,    31,
-      10,     7,     7,     1,    10,    11,    11,    11,    11,    11,
-       1,    11,     4,     5,     3,     3,     5,     5,     1,     5,
-      22,    11,    11,    22,    22,    22,     1,    22,     4,     4,
-       4,     4,     4,     1,     4
+       0,     1,     5,     7,     9,    20,    21,     8,     1,     8,
+       1,     8,     0,    21,     6,     6,     1,     6,     6,     1,
+       6,     5,     1,     5,     5,     5,     5,     5,     1,     5,
+       1,     5,    11,    12,    22,    23,    25,    27,     1,    12,
+      22,    22,     1,    12,    25,    25,    25,     1,    25,    10,
+      13,     1,    10,     1,    10,    13,    10,     1,    10,     1,
+       6,     6,     6,     1,     6,     6,     1,     6,     1,     6,
+       6,     6,     6,     6,     5,     5,     5,     5,     1,     5,
+       5,     5,     1,     5,     5,     1,     3,    28,     5,     5,
+       5,     5,     1,    14,    16,    18,    24,    26,     1,    28,
+       1,    24,    24,    24,    24,     1,    26,    28,     1,    26,
+      26,    26,    28,     6,    28,     1,     6,     3,    15,     1,
+      15,     1,    15,     1,     3,     5,     5,     1,     5,     6,
+       6,     1,     6,     6,     1,     6,     3,     3,     3,     1,
+       3,     3,     3,     1,     3,     6,     6,     6,     6,     1,
+       6,     6,     6,     6,     1,     6
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    23,    24,    24,    25,    25,    25,    25,    25,    25,
-      25,    25,    25,    25,    25,    25,    26,    26,    26,    27,
-      27,    27,    27,    27,    28,    28,    28,    28,    28,    28,
-      29,    29,    29,    29,    29,    29,    29,    30,    30,    30,
-      30,    30,    31,    32,    32,    32
+       0,    19,    20,    20,    21,    21,    21,    21,    21,    21,
+      21,    21,    21,    21,    21,    21,    22,    22,    22,    23,
+      23,    23,    23,    23,    24,    24,    24,    24,    24,    24,
+      24,    24,    24,    24,    24,    24,    25,    25,    25,    25,
+      25,    25,    26,    26,    26,    27,    27,    27,    27,    27,
+      28,    28,    28,    28
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     2,     1,     5,     5,     5,     5,     4,
-       4,     5,     5,     5,     5,     5,     0,     1,     1,     5,
+       4,     5,     5,     5,     5,     5,     1,     1,     1,     5,
        5,     5,     5,     5,     0,     5,     5,     5,     5,     5,
-       6,     6,     6,     6,     6,     6,     6,     5,     5,     5,
-       5,     5,     3,     0,     5,     5
+       5,     5,     5,     5,     5,     5,     0,     5,     5,     5,
+       5,     5,     2,     2,     2,     4,     5,     5,     5,     5,
+       3,     3,     3,     3
 };
 
 
@@ -1432,276 +1435,364 @@ yyreduce:
   switch (yyn)
     {
   case 4:
-#line 47 "proyecto.y"
+#line 45 "proyecto.y"
                          {/*Si lo borro pierdo la posibilidad de agregar mas*/}
-#line 1438 "proyecto.tab.c"
+#line 1441 "proyecto.tab.c"
     break;
 
   case 5:
-#line 48 "proyecto.y"
+#line 46 "proyecto.y"
                                                                              {if(estado == 1 && acepToken == 1){
                                                                                 //Esto corre al final, por lo tanto lo pone al ultimo
-                                                                                arbol[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content";
-                                                                                
+                                                                                derivaciones[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content \n";
+                                                                                showInTree[j] = "\n\t ENVIROMENT DIVISION DOT NL <enviroment-division-content>";
+                                                                                ++j;
+                                                                                showInTree[j] = "\n\t <cobol-source-program>";
                                                                                 printf("\n\n________________________\nDERIVACION EJEMPLO: %d   ESTADO: LINEA ACEPTADA\n",++ntries);
                                                                                 /*Decrementa, porque esto se corre al final*/
                                                                                 for(i; i>=0; i--){
-                                                                                    printf("%s", arbol[i]);
+                                                                                    printf("%s", derivaciones[i]);
                                                                                 }
-                                                                                printf("\n\n________________________\n Nuevo itento: \n");
+                                                                                
                                                                                 estado = 1;
                                                                                 acepToken = 1;
                                                                                 /*Limpio los array para el proximo ejemplo*/
                                                                                 for (i=0;i<30;i++){
-                                                                                  arbol[i]="";
+                                                                                  derivaciones[i]="";
                                                                                 }
                                                                                 //Reseteo para el proximo ejemplo.
                                                                                 nlines = 0;
                                                                                 dibujoArbol(1);
+                                                                                printf("\n________________________\n");
+                                                                                printf("\n Nuevo itento: \n");
                                                                             }
                                                                            }
-#line 1464 "proyecto.tab.c"
+#line 1471 "proyecto.tab.c"
     break;
 
   case 6:
-#line 69 "proyecto.y"
-                                                                 {/*DibujarTodo(2); Esta es correcta*/ /*Aca tal vez tambien me sirve el proneToShow = 1*/}
-#line 1470 "proyecto.tab.c"
+#line 71 "proyecto.y"
+                                                                 {if(estado == 1 && acepToken == 1){
+                                                                                //Esto corre al final, por lo tanto lo pone al ultimo
+                                                                                derivaciones[i] = "\n<cobol-source-program> ==>  DATA DIVISION DOT NL data-division-content \n";
+                                                                                showInTree[j] = "\n\t DATA DIVISION DOT NL <data-division-content>";
+                                                                                ++j;
+                                                                                showInTree[j] = "<cobol-source-program>";
+                                                                                printf("\n\n________________________\nDERIVACION EJEMPLO: %d   ESTADO: LINEA ACEPTADA\n",++ntries);
+                                                                                /*Decrementa, porque esto se corre al final*/
+                                                                                for(i; i>=0; i--){
+                                                                                    printf("%s", derivaciones[i]);
+                                                                                }   
+                                                                                estado = 1;
+                                                                                acepToken = 1;
+                                                                                /*Limpio los array para el proximo ejemplo*/
+                                                                                for (i=0;i<30;i++){
+                                                                                  derivaciones[i]="";
+                                                                                }
+                                                                                dibujoArbol(2);
+                                                                                printf("\n________________________\n");
+                                                                                printf("\n Nuevo itento: \n");
+                                                                             }
+                                                                            }
+#line 1498 "proyecto.tab.c"
     break;
 
   case 7:
-#line 70 "proyecto.y"
+#line 93 "proyecto.y"
                                                                         {printOnError("Se esperaba 'ENVIROMENT' al iniciar la frase\n "); /*Si contemplo asi el error, no se para*/}
-#line 1476 "proyecto.tab.c"
+#line 1504 "proyecto.tab.c"
     break;
 
   case 8:
-#line 71 "proyecto.y"
+#line 94 "proyecto.y"
                                                                           {printOnError("Se esperaba 'DIVISION' en segundo lugar\n ");}
-#line 1482 "proyecto.tab.c"
+#line 1510 "proyecto.tab.c"
     break;
 
   case 9:
-#line 72 "proyecto.y"
+#line 95 "proyecto.y"
                                                    {printOnError("Al definir el titular de env division content. Se esperaba un punto ( . ) en tercer lugar\n ");}
-#line 1488 "proyecto.tab.c"
+#line 1516 "proyecto.tab.c"
     break;
 
   case 10:
-#line 73 "proyecto.y"
+#line 96 "proyecto.y"
                                                  {printOnError("Se esperaba un salto de linea para entrar poder contemplar el input de enviroment-division-content\n ");}
-#line 1494 "proyecto.tab.c"
+#line 1522 "proyecto.tab.c"
     break;
 
   case 11:
-#line 74 "proyecto.y"
+#line 97 "proyecto.y"
                                                                   {printOnError("Se esperaba 'DATA' al iniciar la oracion \n");}
-#line 1500 "proyecto.tab.c"
+#line 1528 "proyecto.tab.c"
     break;
 
   case 12:
-#line 75 "proyecto.y"
+#line 98 "proyecto.y"
                                                               {printOnError("Se esperaba DIVISION en segundo lugar \n");}
-#line 1506 "proyecto.tab.c"
+#line 1534 "proyecto.tab.c"
     break;
 
   case 13:
-#line 76 "proyecto.y"
+#line 99 "proyecto.y"
                                                                    {printOnError("Al definir el titular de data division content. Se esperaba un punto ( . ) en tercer lugar\n");}
-#line 1512 "proyecto.tab.c"
-    break;
-
-  case 14:
-#line 77 "proyecto.y"
-                                                                    {printOnError("Se esperaba un salto de linea para poder analizar data-division-content \n");}
-#line 1518 "proyecto.tab.c"
-    break;
-
-  case 15:
-#line 78 "proyecto.y"
-                                                 {printOnError("Esta mal definido data-division-content. *REVISAR DOCUMENTACION* \n");}
-#line 1524 "proyecto.tab.c"
-    break;
-
-  case 17:
-#line 82 "proyecto.y"
-                                                  {/*Agrego al arbol el hijo de cobol-source-program*/
-                                                    arbol[i]=" enviroment-division-content ==> configuration-section";
-                                                    i++;estado=1; envDivCont="configuration-section";}
-#line 1532 "proyecto.tab.c"
-    break;
-
-  case 18:
-#line 85 "proyecto.y"
-                                                 {/*Igual que en el de arriba, pero si se llegase a esta*/
-                                                    arbol[i]="  enviroment-division-content ==> input-output-section";
-                                                    i++;estado=1; envDivCont="input-output-section";}
 #line 1540 "proyecto.tab.c"
     break;
 
-  case 19:
-#line 90 "proyecto.y"
-                                                                                     {/*Misma dinamica con el arbol que arriba*/
-                                                                                   arbol[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
-                                                                                    i++;estado=1;}
-#line 1548 "proyecto.tab.c"
+  case 14:
+#line 100 "proyecto.y"
+                                                                    {printOnError("Se esperaba un salto de linea para poder analizar data-division-content \n");}
+#line 1546 "proyecto.tab.c"
     break;
 
-  case 20:
-#line 93 "proyecto.y"
-                                                                             {printOnError("Se esperaba el token CONFIGURATION en la primera posicion.");}
-#line 1554 "proyecto.tab.c"
+  case 15:
+#line 101 "proyecto.y"
+                                                 {printOnError("Esta mal definido data-division-content. *REVISAR DOCUMENTACION* \n");}
+#line 1552 "proyecto.tab.c"
     break;
 
-  case 21:
-#line 94 "proyecto.y"
-                                                                                        {printOnError("Se esperaba el token SECTION en la segunda posicion.");}
-#line 1560 "proyecto.tab.c"
+  case 17:
+#line 105 "proyecto.y"
+                                                  {/*Agrego al arbol el hijo de cobol-source-program*/
+                                                    derivaciones[i]=" enviroment-division-content ==> configuration-section \n";
+                                                    i++;estado=1; 
+                                                    showInTree[j]="<configuration-section>"; 
+                                                    j++;}
+#line 1562 "proyecto.tab.c"
     break;
 
-  case 22:
-#line 95 "proyecto.y"
-                                                                                        {printOnError("Se esperaba el token DOT (.) en la tercera posicion.");}
-#line 1566 "proyecto.tab.c"
-    break;
-
-  case 23:
-#line 96 "proyecto.y"
-                                                                                        {printOnError("Se esperaba el token  NL en la cuarta posicion.");}
+  case 18:
+#line 110 "proyecto.y"
+                                                 {/*Igual que en el de arriba, pero si se llegase a esta*/
+                                                    derivaciones[i]="  enviroment-division-content ==> input-output-section \n";
+                                                    i++;estado=1;
+                                                    showInTree[j]="<input-output-section>";
+                                                    j++;}
 #line 1572 "proyecto.tab.c"
     break;
 
+  case 19:
+#line 117 "proyecto.y"
+                                                                                     {/*Misma dinamica con el arbol que arriba*/
+                                                                                   derivaciones[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs \n";
+                                                                                    i++;estado=1;
+                                                                                    showInTree[j]="CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
+                                                                                    j++;}
+#line 1582 "proyecto.tab.c"
+    break;
+
+  case 20:
+#line 122 "proyecto.y"
+                                                                             {printOnError("Se esperaba el token CONFIGURATION en la primera posicion.");}
+#line 1588 "proyecto.tab.c"
+    break;
+
+  case 21:
+#line 123 "proyecto.y"
+                                                                                        {printOnError("Se esperaba el token SECTION en la segunda posicion.");}
+#line 1594 "proyecto.tab.c"
+    break;
+
+  case 22:
+#line 124 "proyecto.y"
+                                                                                        {printOnError("Se esperaba el token DOT (.) en la tercera posicion.");}
+#line 1600 "proyecto.tab.c"
+    break;
+
+  case 23:
+#line 125 "proyecto.y"
+                                                                                        {printOnError("Se esperaba el token  NL en la cuarta posicion.");}
+#line 1606 "proyecto.tab.c"
+    break;
+
   case 25:
-#line 99 "proyecto.y"
-                                                                   {
-                                                                arbol[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry ";
-                                                                i++;estado=1;
-                                                                }
-#line 1581 "proyecto.tab.c"
+#line 129 "proyecto.y"
+                                                             {derivaciones[i]="configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID DOT \n";
+                                         i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/
+                                         showInTree[j]="SOURCE COMPUTER DOT ID DOT";
+                                         }
+#line 1615 "proyecto.tab.c"
     break;
 
   case 26:
-#line 103 "proyecto.y"
-                                                                   {printOnError("Se esperaba el token FILEM en la definicion de data-division-content");}
-#line 1587 "proyecto.tab.c"
+#line 133 "proyecto.y"
+                                                             {derivaciones[i]="configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID DOT \n";
+                                         i++;estado=1; confSecParag=1;
+                                         showInTree[j]="OBJECT COMPUTER DOT ID DOT";}
+#line 1623 "proyecto.tab.c"
     break;
 
   case 27:
-#line 104 "proyecto.y"
-                                                                 {printOnError("Se esperaba el token SECTION en la definicion de data-division-content");}
-#line 1593 "proyecto.tab.c"
+#line 136 "proyecto.y"
+                                                            {printOnError("Se esperaba token SOURCE o OBJECT en configuration-section-paragraphs");}
+#line 1629 "proyecto.tab.c"
     break;
 
   case 28:
-#line 105 "proyecto.y"
-                                                                     {printOnError("Se esperaba el token DOT en la definicion de data-division-content");}
-#line 1599 "proyecto.tab.c"
+#line 137 "proyecto.y"
+                                                          {printOnError("Se esperaba token COMPUTER en configuration-section-paragraphs");}
+#line 1635 "proyecto.tab.c"
     break;
 
   case 29:
-#line 106 "proyecto.y"
-                                                                      {printOnError("Se esperaba el token NL en la definicion de data-division-content");}
-#line 1605 "proyecto.tab.c"
+#line 138 "proyecto.y"
+                                                               {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+#line 1641 "proyecto.tab.c"
     break;
 
   case 30:
-#line 109 "proyecto.y"
-                                                        {arbol[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID_FILE ";
-                                                                    i++;estado=1;
-                                                                   }
-#line 1613 "proyecto.tab.c"
+#line 139 "proyecto.y"
+                                                                {printOnError("Se esperaba token ID en configuration-section-paragraphs");}
+#line 1647 "proyecto.tab.c"
     break;
 
   case 31:
-#line 112 "proyecto.y"
-                                                         {printOnError("Se esperaba el token FILE en file-description-entry");}
-#line 1619 "proyecto.tab.c"
+#line 140 "proyecto.y"
+                                                               {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+#line 1653 "proyecto.tab.c"
     break;
 
   case 32:
-#line 113 "proyecto.y"
-                                                      {printOnError("Se esperaba el token SECTION en file-description-entry");}
-#line 1625 "proyecto.tab.c"
+#line 141 "proyecto.y"
+                                                          {printOnError("Se esperaba token COMPUTER en configuration-section-paragraphs");}
+#line 1659 "proyecto.tab.c"
     break;
 
   case 33:
-#line 114 "proyecto.y"
-                                                          {printOnError("Se esperaba el token DOT en file-description-entry");}
-#line 1631 "proyecto.tab.c"
+#line 142 "proyecto.y"
+                                                               {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+#line 1665 "proyecto.tab.c"
     break;
 
   case 34:
-#line 115 "proyecto.y"
-                                                           {printOnError("Se esperaba el token NL en file-description-entry");}
-#line 1637 "proyecto.tab.c"
+#line 143 "proyecto.y"
+                                                                {printOnError("Se esperaba token ID en configuration-section-paragraphs");}
+#line 1671 "proyecto.tab.c"
     break;
 
   case 35:
-#line 116 "proyecto.y"
-                                                           {printOnError("Se esperaba el token FD en file-description-entry");}
-#line 1643 "proyecto.tab.c"
-    break;
-
-  case 36:
-#line 117 "proyecto.y"
-                                                      {printOnError("Se esperaba el token ID_FILE en file-description-entry");}
-#line 1649 "proyecto.tab.c"
+#line 144 "proyecto.y"
+                                                               {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+#line 1677 "proyecto.tab.c"
     break;
 
   case 37:
-#line 119 "proyecto.y"
-                                                              {arbol[i]="input-output-section ==> FILEM CONTROL DOT NL file-control-entry ";
-                                                                i++;estado=1;}
-#line 1656 "proyecto.tab.c"
+#line 148 "proyecto.y"
+                                                                   {
+                                                                derivaciones[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry \n";
+                                                                i++;estado=1;
+                                                                showInTree[j]="FILEM SECTION DOT NL <file-description-entry>";
+                                                                j++;
+                                                                }
+#line 1688 "proyecto.tab.c"
     break;
 
   case 38:
-#line 121 "proyecto.y"
-                                                              {printOnError("Se esperaba el token FILEM en input-output-section");}
-#line 1662 "proyecto.tab.c"
-    break;
-
-  case 39:
-#line 122 "proyecto.y"
-                                                            {printOnError("Se esperaba el CONTROL en input-output-section");}
-#line 1668 "proyecto.tab.c"
-    break;
-
-  case 40:
-#line 123 "proyecto.y"
-                                                                {printOnError("Se esperaba el token DOT en input-output-section");}
-#line 1674 "proyecto.tab.c"
-    break;
-
-  case 41:
-#line 124 "proyecto.y"
-                                                                 {printOnError("Se esperaba el token NL en input-output-section");}
-#line 1680 "proyecto.tab.c"
-    break;
-
-  case 42:
-#line 127 "proyecto.y"
-                                        {arbol[i]=" file-control-entry ==> ID_FILE DOT ID_FILE";
-                                         i++;estado=1;}
-#line 1687 "proyecto.tab.c"
-    break;
-
-  case 44:
-#line 132 "proyecto.y"
-                                                                      {arbol[i]=" configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID_COMPUTER DOT";
-                                         i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/}
+#line 154 "proyecto.y"
+                                                                   {printOnError("Se esperaba el token FILEM en la definicion de data-division-content");}
 #line 1694 "proyecto.tab.c"
     break;
 
+  case 39:
+#line 155 "proyecto.y"
+                                                                 {printOnError("Se esperaba el token SECTION en la definicion de data-division-content");}
+#line 1700 "proyecto.tab.c"
+    break;
+
+  case 40:
+#line 156 "proyecto.y"
+                                                                     {printOnError("Se esperaba el token DOT en la definicion de data-division-content");}
+#line 1706 "proyecto.tab.c"
+    break;
+
+  case 41:
+#line 157 "proyecto.y"
+                                                                      {printOnError("Se esperaba el token NL en la definicion de data-division-content");}
+#line 1712 "proyecto.tab.c"
+    break;
+
+  case 42:
+#line 160 "proyecto.y"
+                              {derivaciones[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID \n";
+                               i++;estado=1;
+                               showInTree[j]="FD ID";
+                               }
+#line 1721 "proyecto.tab.c"
+    break;
+
+  case 43:
+#line 164 "proyecto.y"
+                                 {printOnError("Se esperaba el token FD en file-description-entry");}
+#line 1727 "proyecto.tab.c"
+    break;
+
+  case 44:
+#line 165 "proyecto.y"
+                                 {printOnError("Se esperaba el token ID en file-description-entry");}
+#line 1733 "proyecto.tab.c"
+    break;
+
   case 45:
-#line 134 "proyecto.y"
-                                                                      {arbol[i]=" configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID_COMPUTER DOT";
-                                         i++;estado=1; confSecParag=1;}
-#line 1701 "proyecto.tab.c"
+#line 168 "proyecto.y"
+                                                           {derivaciones[i]="input-output-section ==> FILEM CONTROL DOT NL <file-control-entry> \n";
+                                                                i++;estado=1;
+                                                                showInTree[j]="FILEM CONTROL DOT NL <file-control-entry>";
+                                                                j++;}
+#line 1742 "proyecto.tab.c"
+    break;
+
+  case 46:
+#line 172 "proyecto.y"
+                                                              {printOnError("Se esperaba el token FILEM en input-output-section");}
+#line 1748 "proyecto.tab.c"
+    break;
+
+  case 47:
+#line 173 "proyecto.y"
+                                                            {printOnError("Se esperaba el CONTROL en input-output-section");}
+#line 1754 "proyecto.tab.c"
+    break;
+
+  case 48:
+#line 174 "proyecto.y"
+                                                                {printOnError("Se esperaba el token DOT en input-output-section");}
+#line 1760 "proyecto.tab.c"
+    break;
+
+  case 49:
+#line 175 "proyecto.y"
+                                                                 {printOnError("Se esperaba el token NL en input-output-section");}
+#line 1766 "proyecto.tab.c"
+    break;
+
+  case 50:
+#line 178 "proyecto.y"
+                             {derivaciones[i]="file-control-entry ==> ID DOT ID \n";
+                                         i++;estado=1;
+                                         showInTree[j]="ID DOT ID";}
+#line 1774 "proyecto.tab.c"
+    break;
+
+  case 51:
+#line 181 "proyecto.y"
+                                {printOnError("Se esperaba token ID al definir file-control-entry");}
+#line 1780 "proyecto.tab.c"
+    break;
+
+  case 52:
+#line 182 "proyecto.y"
+                               {printOnError("Se esperaba token DOT al definir file-control-entry");}
+#line 1786 "proyecto.tab.c"
+    break;
+
+  case 53:
+#line 183 "proyecto.y"
+                                {printOnError("Se esperaba token NL al definir file-control-entry");}
+#line 1792 "proyecto.tab.c"
     break;
 
 
-#line 1705 "proyecto.tab.c"
+#line 1796 "proyecto.tab.c"
 
       default: break;
     }
@@ -1933,7 +2024,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 139 "proyecto.y"
+#line 188 "proyecto.y"
 
 
 void showLine(int line){
@@ -1954,6 +2045,9 @@ int yyerror(char *msg){
     printf("\n Error encontrado!\n "); 
     //Ver si con esto logro lo de mostrar una sola vez mi mensaje personalizado
     proneToShow = 1;
+
+printf("\n _______________");
+    printf("\n Nuevo intento: \n");
 }
 
 int main(int argc, char **argv){
@@ -1979,27 +2073,11 @@ int yywrap() {
 }
 
 void dibujoArbol(int caso){
-    printf("_____________-ARBOL DE DERIVACIONES-_____________");
-    printf("           cobol-source-program\n");
-    printf("                    |\n");
-
-    switch(caso){
-        case 1:
-        printf("ENVIROMENT DIVISION DOT NL enviroment-division-content\n");
-        printf("                                        |\n");
-        printf("                                        --------\n");
-        printf("                                                |\n");
-        printf("                                                %s", envDivCont);
-        
-            break;
-        
-        case 2:
-        
-            break;
-        
-        case 3:
-
-            break;
+    printf("\t\n_____________-ARBOL DE DERIVACIONES-_____________");
+    
+    for(j; j>=0; j--){
+        printf("\t %s", showInTree[j]);
+        printf("\n | \n");
     }
 
 }

@@ -10,17 +10,17 @@ void showLine(int line);
 void printOnError(char *err);
 void dibujoArbol(int caso);
 
-char *arbol[30];
+char *derivaciones[30];
 int i = 0, ntries = 0; //ntries cuenta que ejemplo de entrada es.
 int nlines = 0; //Este cuenta las lineas dentro de un ejemplo, para dar un mejor error
 /*Las siguientes constantes sirven para saber que mostrar en el arbol*/
 int confSecParag=0; //Sirve para saber si mostrar el conf-sec-paragraphs en el arbol de derivacion
-char *envDivCont;
-
+char *envDivCont[10];
+char *showInTree[5]; //Este es el que se corre en la funcion de mostrar arbol
+int j = 0; //me sirve para poder ir acomodando los items en el array de showInTree
 
 
 short int estado=1, acepToken=1;
-int nline = 0;
 short int proneToShow = 1; /*Permite que no salte muchas veces un mensaje en errores reiterados
 (como si fuera el yyerror que solo se llama una vez)*/
 %}
@@ -28,15 +28,13 @@ short int proneToShow = 1; /*Permite que no salte muchas veces un mensaje en err
 %union{
     int digitos;
     char *letras;
-    char *fileeId;
 }
-%token <letras> ID_COMPUTER
-%token <fileeId> ID_FILE
-%token NL SOURCE COMPUTER OBJECT
-%token CONFIGURATION SECTION DOT TAB
-%token DIVISION ENVIROMENT DATA CONTROL
-%token FCTRL FCENT FILEM CTRL
-%token DESCRIPTION FD 
+%token <letras> ID
+%token TAB NL DOT 
+%token ENVIROMENT DIVISION DATA
+%token SECTION CONFIGURATION FILEM
+%token CONTROL SOURCE COMPUTER
+%token OBJECT DESCRIPTION FD
 %start mi_axioma
 %%
 
@@ -47,26 +45,51 @@ mi_axioma: cobol-source-program | mi_axioma cobol-source-program
 cobol-source-program: NL {/*Si lo borro pierdo la posibilidad de agregar mas*/}
                     | ENVIROMENT DIVISION DOT NL enviroment-division-content {if(estado == 1 && acepToken == 1){
                                                                                 //Esto corre al final, por lo tanto lo pone al ultimo
-                                                                                arbol[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content";
-                                                                                
+                                                                                derivaciones[i] = "\n\t<cobol-source-program> ==>  ENVIROMENT DIVISION DOT NL enviroment-division-content \n";
+                                                                                showInTree[j] = "\n\t ENVIROMENT DIVISION DOT NL <enviroment-division-content>";
+                                                                                ++j;
+                                                                                showInTree[j] = "\n\t <cobol-source-program>";
                                                                                 printf("\n\n________________________\nDERIVACION EJEMPLO: %d   ESTADO: LINEA ACEPTADA\n",++ntries);
                                                                                 /*Decrementa, porque esto se corre al final*/
                                                                                 for(i; i>=0; i--){
-                                                                                    printf("%s", arbol[i]);
+                                                                                    printf("%s", derivaciones[i]);
                                                                                 }
-                                                                                printf("\n\n________________________\n Nuevo itento: \n");
+                                                                                
                                                                                 estado = 1;
                                                                                 acepToken = 1;
                                                                                 /*Limpio los array para el proximo ejemplo*/
                                                                                 for (i=0;i<30;i++){
-                                                                                  arbol[i]="";
+                                                                                  derivaciones[i]="";
                                                                                 }
                                                                                 //Reseteo para el proximo ejemplo.
                                                                                 nlines = 0;
                                                                                 dibujoArbol(1);
+                                                                                printf("\n________________________\n");
+                                                                                printf("\n Nuevo itento: \n");
                                                                             }
                                                                            }
-                    | DATA DIVISION DOT NL data-division-content {/*DibujarTodo(2); Esta es correcta*/ /*Aca tal vez tambien me sirve el proneToShow = 1*/}
+                    | DATA DIVISION DOT NL data-division-content {if(estado == 1 && acepToken == 1){
+                                                                                //Esto corre al final, por lo tanto lo pone al ultimo
+                                                                                derivaciones[i] = "\n<cobol-source-program> ==>  DATA DIVISION DOT NL data-division-content \n";
+                                                                                showInTree[j] = "\n\t DATA DIVISION DOT NL <data-division-content>";
+                                                                                ++j;
+                                                                                showInTree[j] = "<cobol-source-program>";
+                                                                                printf("\n\n________________________\nDERIVACION EJEMPLO: %d   ESTADO: LINEA ACEPTADA\n",++ntries);
+                                                                                /*Decrementa, porque esto se corre al final*/
+                                                                                for(i; i>=0; i--){
+                                                                                    printf("%s", derivaciones[i]);
+                                                                                }   
+                                                                                estado = 1;
+                                                                                acepToken = 1;
+                                                                                /*Limpio los array para el proximo ejemplo*/
+                                                                                for (i=0;i<30;i++){
+                                                                                  derivaciones[i]="";
+                                                                                }
+                                                                                dibujoArbol(2);
+                                                                                printf("\n________________________\n");
+                                                                                printf("\n Nuevo itento: \n");
+                                                                             }
+                                                                            }
                     | error DIVISION DOT NL enviroment-division-content {printOnError("Se esperaba 'ENVIROMENT' al iniciar la frase\n "); /*Si contemplo asi el error, no se para*/}
                     | ENVIROMENT error DOT NL enviroment-division-content {printOnError("Se esperaba 'DIVISION' en segundo lugar\n ");}
                     | ENVIROMENT DIVISION error NL {printOnError("Al definir el titular de env division content. Se esperaba un punto ( . ) en tercer lugar\n ");}
@@ -78,27 +101,55 @@ cobol-source-program: NL {/*Si lo borro pierdo la posibilidad de agregar mas*/}
                     | DATA DIVISION DOT NL error {printOnError("Esta mal definido data-division-content. *REVISAR DOCUMENTACION* \n");}
                     
 ;
-enviroment-division-content:
+enviroment-division-content:NL
                            |configuration-section {/*Agrego al arbol el hijo de cobol-source-program*/
-                                                    arbol[i]=" enviroment-division-content ==> configuration-section";
-                                                    i++;estado=1; envDivCont="configuration-section";}
+                                                    derivaciones[i]=" enviroment-division-content ==> configuration-section \n";
+                                                    i++;estado=1; 
+                                                    showInTree[j]="<configuration-section>"; 
+                                                    j++;}
                            |input-output-section {/*Igual que en el de arriba, pero si se llegase a esta*/
-                                                    arbol[i]="  enviroment-division-content ==> input-output-section";
-                                                    i++;estado=1; envDivCont="input-output-section";}
+                                                    derivaciones[i]="  enviroment-division-content ==> input-output-section \n";
+                                                    i++;estado=1;
+                                                    showInTree[j]="<input-output-section>";
+                                                    j++;}
                            
 ;
 configuration-section: CONFIGURATION SECTION DOT NL configuration-section-paragraphs {/*Misma dinamica con el arbol que arriba*/
-                                                                                   arbol[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
-                                                                                    i++;estado=1;}
+                                                                                   derivaciones[i]="configuration-section ==> CONFIGURATION SECTION DOT NL configuration-section-paragraphs \n";
+                                                                                    i++;estado=1;
+                                                                                    showInTree[j]="CONFIGURATION SECTION DOT NL configuration-section-paragraphs";
+                                                                                    j++;}
                      | error SECTION DOT NL configuration-section-paragraphs {printOnError("Se esperaba el token CONFIGURATION en la primera posicion.");}
                      | CONFIGURATION error DOT NL configuration-section-paragraphs      {printOnError("Se esperaba el token SECTION en la segunda posicion.");}
                      | CONFIGURATION SECTION error NL configuration-section-paragraphs  {printOnError("Se esperaba el token DOT (.) en la tercera posicion.");}
                      | CONFIGURATION SECTION DOT error configuration-section-paragraphs {printOnError("Se esperaba el token  NL en la cuarta posicion.");}
 ;
+
+configuration-section-paragraphs:
+                                | SOURCE COMPUTER DOT ID DOT {derivaciones[i]="configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID DOT \n";
+                                         i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/
+                                         showInTree[j]="SOURCE COMPUTER DOT ID DOT";
+                                         }
+                                | OBJECT COMPUTER DOT ID DOT {derivaciones[i]="configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID DOT \n";
+                                         i++;estado=1; confSecParag=1;
+                                         showInTree[j]="OBJECT COMPUTER DOT ID DOT";}
+                                | error COMPUTER DOT ID DOT {printOnError("Se esperaba token SOURCE o OBJECT en configuration-section-paragraphs");}
+                                | SOURCE error DOT ID DOT {printOnError("Se esperaba token COMPUTER en configuration-section-paragraphs");}
+                                | SOURCE COMPUTER error ID DOT {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+                                | SOURCE COMPUTER DOT error DOT {printOnError("Se esperaba token ID en configuration-section-paragraphs");}
+                                | SOURCE COMPUTER DOT ID error {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+                                | OBJECT error DOT ID DOT {printOnError("Se esperaba token COMPUTER en configuration-section-paragraphs");}
+                                | OBJECT COMPUTER error ID DOT {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+                                | OBJECT COMPUTER DOT error DOT {printOnError("Se esperaba token ID en configuration-section-paragraphs");}
+                                | OBJECT COMPUTER DOT ID error {printOnError("Se esperaba token DOT en configuration-section-paragraphs");}
+;
+
 data-division-content:
                      | FILEM SECTION DOT NL file-description-entry {
-                                                                arbol[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry ";
+                                                                derivaciones[i]="data-division-content ==> FILEM SECTION DOT NL file-description-entry \n";
                                                                 i++;estado=1;
+                                                                showInTree[j]="FILEM SECTION DOT NL <file-description-entry>";
+                                                                j++;
                                                                 }
                      | error SECTION DOT NL file-description-entry {printOnError("Se esperaba el token FILEM en la definicion de data-division-content");}
                      | FILEM error DOT NL file-description-entry {printOnError("Se esperaba el token SECTION en la definicion de data-division-content");}
@@ -106,35 +157,33 @@ data-division-content:
                      | FILEM SECTION DOT error file-description-entry {printOnError("Se esperaba el token NL en la definicion de data-division-content");}
 ;
 
-file-description-entry: FILEM SECTION DOT NL FD ID_FILE {arbol[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID_FILE ";
-                                                                    i++;estado=1;
-                                                                   }
-                      | error SECTION DOT NL FD ID_FILE  {printOnError("Se esperaba el token FILE en file-description-entry");}
-                      | FILEM error DOT NL FD ID_FILE {printOnError("Se esperaba el token SECTION en file-description-entry");}
-                      | FILEM SECTION error NL FD ID_FILE {printOnError("Se esperaba el token DOT en file-description-entry");}
-                      | FILEM SECTION DOT error FD ID_FILE {printOnError("Se esperaba el token NL en file-description-entry");}
-                      | FILEM SECTION DOT NL error ID_FILE {printOnError("Se esperaba el token FD en file-description-entry");}
-                      | FILEM SECTION DOT NL FD error {printOnError("Se esperaba el token ID_FILE en file-description-entry");}               
+file-description-entry: FD ID {derivaciones[i]=" file-description-entry ==> FILEM SECTION DOT NL FD ID \n";
+                               i++;estado=1;
+                               showInTree[j]="FD ID";
+                               }
+                      | error ID {printOnError("Se esperaba el token FD en file-description-entry");}
+                      | FD error {printOnError("Se esperaba el token ID en file-description-entry");}
 ;
-input-output-section: FILEM CONTROL DOT NL file-control-entry {arbol[i]="input-output-section ==> FILEM CONTROL DOT NL file-control-entry ";
-                                                                i++;estado=1;}
+
+input-output-section: FILEM CONTROL DOT file-control-entry {derivaciones[i]="input-output-section ==> FILEM CONTROL DOT NL <file-control-entry> \n";
+                                                                i++;estado=1;
+                                                                showInTree[j]="FILEM CONTROL DOT NL <file-control-entry>";
+                                                                j++;}
                     | error CONTROL DOT NL file-control-entry {printOnError("Se esperaba el token FILEM en input-output-section");}
                     | FILEM error DOT NL file-control-entry {printOnError("Se esperaba el CONTROL en input-output-section");}
                     | FILEM CONTROL error NL file-control-entry {printOnError("Se esperaba el token DOT en input-output-section");}
                     | FILEM CONTROL DOT error file-control-entry {printOnError("Se esperaba el token NL en input-output-section");}
 ;
 
-file-control-entry: ID_FILE DOT ID_FILE {arbol[i]=" file-control-entry ==> ID_FILE DOT ID_FILE";
-                                         i++;estado=1;}
+file-control-entry:ID DOT NL {derivaciones[i]="file-control-entry ==> ID DOT ID \n";
+                                         i++;estado=1;
+                                         showInTree[j]="ID DOT ID";}
+                  |error DOT NL {printOnError("Se esperaba token ID al definir file-control-entry");}
+                  |ID error NL {printOnError("Se esperaba token DOT al definir file-control-entry");}
+                  |ID DOT error {printOnError("Se esperaba token NL al definir file-control-entry");}
 ;
 
-configuration-section-paragraphs:
-                                | SOURCE COMPUTER DOT ID_COMPUTER DOT {arbol[i]=" configuration-section-paragraphs ==> SOURCE COMPUTER DOT ID_COMPUTER DOT";
-                                         i++;estado=1; confSecParag=1; /*Si se cuple este o el de abajo, se muestra en el arbol de deriv*/}
-                                | OBJECT COMPUTER DOT ID_COMPUTER DOT {arbol[i]=" configuration-section-paragraphs ==> OBJECT COMPUTER DOT ID_COMPUTER DOT";
-                                         i++;estado=1; confSecParag=1;}
-                                
-;
+
 
 %%
 
@@ -156,6 +205,9 @@ int yyerror(char *msg){
     printf("\n Error encontrado!\n "); 
     //Ver si con esto logro lo de mostrar una sola vez mi mensaje personalizado
     proneToShow = 1;
+
+printf("\n _______________");
+    printf("\n Nuevo intento: \n");
 }
 
 int main(int argc, char **argv){
@@ -181,27 +233,11 @@ int yywrap() {
 }
 
 void dibujoArbol(int caso){
-    printf("_____________-ARBOL DE DERIVACIONES-_____________");
-    printf("           cobol-source-program\n");
-    printf("                    |\n");
-
-    switch(caso){
-        case 1:
-        printf("ENVIROMENT DIVISION DOT NL enviroment-division-content\n");
-        printf("                                        |\n");
-        printf("                                        --------\n");
-        printf("                                                |\n");
-        printf("                                          %s", envDivCont);
-        
-            break;
-        
-        case 2:
-        
-            break;
-        
-        case 3:
-
-            break;
+    printf("\t\n_____________-ARBOL DE DERIVACIONES-_____________");
+    
+    for(j; j>=0; j--){
+        printf("\t %s", showInTree[j]);
+        printf("\n | \n");
     }
 
 }

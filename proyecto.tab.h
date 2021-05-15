@@ -49,26 +49,22 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ID_COMPUTER = 258,
-    ID_FILE = 259,
+    ID = 258,
+    TAB = 259,
     NL = 260,
-    SOURCE = 261,
-    COMPUTER = 262,
-    OBJECT = 263,
-    CONFIGURATION = 264,
+    DOT = 261,
+    ENVIROMENT = 262,
+    DIVISION = 263,
+    DATA = 264,
     SECTION = 265,
-    DOT = 266,
-    TAB = 267,
-    DIVISION = 268,
-    ENVIROMENT = 269,
-    DATA = 270,
-    CONTROL = 271,
-    FCTRL = 272,
-    FCENT = 273,
-    FILEM = 274,
-    CTRL = 275,
-    DESCRIPTION = 276,
-    FD = 277
+    CONFIGURATION = 266,
+    FILEM = 267,
+    CONTROL = 268,
+    SOURCE = 269,
+    COMPUTER = 270,
+    OBJECT = 271,
+    DESCRIPTION = 272,
+    FD = 273
   };
 #endif
 
@@ -80,9 +76,8 @@ union YYSTYPE
 
     int digitos;
     char *letras;
-    char *fileeId;
 
-#line 86 "proyecto.tab.h"
+#line 81 "proyecto.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
