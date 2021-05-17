@@ -8,14 +8,42 @@ https://www.microfocus.com/documentation/object-cobol/oc41books/lrcpro.htm
 
 Consideraciones a tomar en cuenta:
 -Recomiendo seguir la guia de ejemplo de estructura junto a las reglas, 
-para probar ejemplos propios
+para probar ejemplos propios (alguno de los dos links de arriba)
 
--Ser atento a la indentacion, esa no es esperada en una primera linea
-(como puede ser ENVIROMENT DIVISION. o DATA DIVISION.) 
-En los casos donde se puede identar, es con 1 espacio. NO tabular.
-Usar mas de un espacio donde no corresponde, dara errores, sintacticos
+-No se espera indentacion en el cambio de linea. Si en la terminar se agrega, no pasa nada
 
--Para el caso de ID_COMPUTER se espera un string alfanumerico sin espacios
--Para el caso de ID_FILE Se espera un string alfanumerico, sin espacio, 
-que puede empezar o terminar con _
+- El archivo input.txt tiene 3 ejemplos correctos.
+- El archivo inputError.txt tiene 3 ejemplos con error.
 
+-En el caso de que se ingrese un error lexico (lexema no reconocido) devuelve la palabra que esta mal
+
+-Se espera que los terminales esten en mayuscula (simulando codigo COBOL)
+-Los no terminales se esperan en minuscula para evitar superposiciones con no terminales
+
+
+
+*** REGLAS ***
+
+COBOL-SOURCE-PROGRAM ::= ['ENVIROMENT' 'DIVISION' '.' 
+ENVIROMENT-DIVISION-CONTENT]['DATA' 'DIVISION' '.' 
+DATA-DIVISION-CONTENT]
+
+ENVIROMENT-DIVISION-CONTENT ::= [CONFIGURATION-SECTION][INPUT-OUTPUT-SECTION]
+
+CONFIGURATION-SECTION ::= 'CONFIGURATION' 'SECTION' '.'
+CONFIGURATION-SECTION-PARAGRAPHS
+
+
+/*Reglas agregadas por mi para poder completar mejor el analisis*/
+
+INPUT-OUTPUT-SECTION ::= ['FILE' 'CONTROL' '.' file-control-entry]
+
+CONFIGURATION-SECTION-PARAGRAPHS ::= ['SOURCE' 'COMPUTER' '.' source-computer-entry]
+['OBJECT' 'COMPUTER' '.' object-computer-entry]
+
+SOURCE-COMPUTER-ENTRY ::= 'ID' 'DOT'
+OBJECT COMPUTER ENTRY ::= 'ID' 'DOT'
+
+DATA-DIVISION-CONTENT ::= ['FILE' 'SECTION' '.' FILE-DESCRIPTION-ENTRY]
+
+FILE-DESCRIPTION-ENTRY ::= 'FILE' 'SECTION' '.' 'NL' 'FD' 'ID'

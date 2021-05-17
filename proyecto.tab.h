@@ -72,7 +72,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 28 "proyecto.y"
+#line 31 "proyecto.y"
 
     int digitos;
     char *letras;
