@@ -6,6 +6,18 @@ https://www.ibm.com/docs/en/i/7.4?topic=object-designing-your-ile-cobol-source-p
 https://www.microfocus.com/documentation/object-cobol/oc41books/lrcpro.htm
 
 
+**** COMO CORRER EL PROGRAMA **** 
+$ Leyendo archivo: correr el programa desde la terminar con el nombre del archivo a leer como argumento
+$ comando: ./analizador input.txt 
+$ comando si se quiere escribir los resultados en un txt: ./analizador input.txt > output.txt
+$ Agregar en ultimo lugar la palabra TERMINAR para poder terminar la ejecucion y mostrar la tabla
+
+$ Escribiendo las reglas: Correr el programa (./analizador)
+$ ingresar las reglas de manera manual. RESPETANDO los saltos de linea esperados
+$ para temrinar ingresar la palabra TERMINAR. Esta mostrara la tabla de tokens y terminara la ejecucion
+
+
+
 Consideraciones a tomar en cuenta:
 -Recomiendo seguir la guia de ejemplo de estructura junto a las reglas, 
 para probar ejemplos propios (alguno de los dos links de arriba)
